@@ -10,6 +10,7 @@ import PetFinder from './pages/PetFinder';
 import DiseasePrediction from './pages/DiseasePrediction';
 import Gallery from './pages/Gallery';
 import OurTeam from './pages/OurTeam';
+import Consultant from './pages/Consultant'; // ✅ Correct Import
 import { AppProvider } from './context/AppContext';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/disease-prediction" element={<DiseasePrediction />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/team" element={<OurTeam />} />
+            <Route path="/consult-adii-jain" element={<Consultant />} /> {/* ✅ Updated Route */}
           </Routes>
         </div>
       </Router>
@@ -36,4 +38,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

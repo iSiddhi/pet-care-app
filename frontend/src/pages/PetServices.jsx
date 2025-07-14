@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { apiService } from '../services/api';
 import { useAppContext } from '../context/AppContext';
-import { actionTypes } from '../context/AppContext';
 
 const PetServices = () => {
   const { state, dispatch } = useAppContext();
@@ -17,43 +16,44 @@ const PetServices = () => {
     { type: 'Fish', icon: '🐠', color: 'bg-cyan-100 border-cyan-300' },
     { type: 'Turtle', icon: '🐢', color: 'bg-emerald-100 border-emerald-300' }
   ];
+const mockImages = {
+  Dog: ['/PetServices/Dog2.png', '/PetServices/Dog1.png', '/PetServices/Dog3.png'],
+  Cat: ['/PetServices/cat1.png', '/PetServices/cat2.png', '/PetServices/cat3.png'],
+  Rabbit: ['/PetServices/rabbit1.png', '/PetServices/rabbit2.png', '/PetServices/rabbit3.png'],
+  Birds: ['/PetServices/birds1.png', '/PetServices/birds2.png', '/PetServices/birds3.png'],
+  Fish: ['/PetServices/fish1.png', '/PetServices/fish2.png', '/PetServices/fish3.png'],
+  Turtle: ['/PetServices/turtle1.png', '/PetServices/turtle2.png', '/PetServices/turtle3.png']
+};
+
+
+  const mockBreeds = {
+    Dog: ['Golden Retriever', 'Labrador', 'Beagle'],
+    Cat: ['Persian', 'Siamese', 'British Shorthair'],
+    Rabbit: ['Holland Lop', 'Netherland Dwarf', 'Lionhead'],
+    Birds: ['African Grey', 'Canary', 'Budgerigar'],
+    Fish: ['Betta', 'Goldfish', 'Guppy'],
+    Turtle: ['Red-Eared Slider', 'Box Turtle', 'Snapping Turtle']
+  };
 
   const fetchPets = async (type) => {
     setLoading(true);
     try {
-      // Try to fetch from API, fallback to mock data
       let petData;
       try {
         petData = await apiService.getPetsByType(type);
       } catch (error) {
-        // Mock data for demonstration
+        const images = mockImages[type];
+        const breeds = mockBreeds[type];
         petData = {
-          pets: [
-            {
-              id: 1,
-              name: `${type === 'Birds' ? 'Parrot' : type.slice(0, -1)} Breed 1`,
-              breed: `${type === 'Birds' ? 'African Grey' : 'Golden Retriever'}`,
-              characteristics: ['Friendly', 'Active', 'Intelligent'],
-              image: `https://via.placeholder.com/300x200/4F46E5/FFFFFF?text=${type}+1`,
-              price: 500 + Math.floor(Math.random() * 1000)
-            },
-            {
-              id: 2,
-              name: `${type === 'Birds' ? 'Canary' : type.slice(0, -1)} Breed 2`,
-              breed: `${type === 'Birds' ? 'Canary' : 'Labrador'}`,
-              characteristics: ['Gentle', 'Playful', 'Loyal'],
-              image: `https://via.placeholder.com/300x200/059669/FFFFFF?text=${type}+2`,
-              price: 400 + Math.floor(Math.random() * 800)
-            },
-            {
-              id: 3,
-              name: `${type === 'Birds' ? 'Budgie' : type.slice(0, -1)} Breed 3`,
-              breed: `${type === 'Birds' ? 'Budgerigar' : 'Persian'}`,
-              characteristics: ['Calm', 'Beautiful', 'Social'],
-              image: `https://via.placeholder.com/300x200/DC2626/FFFFFF?text=${type}+3`,
-              price: 300 + Math.floor(Math.random() * 700)
-            }
-          ]
+          pets: images.map((img, index) => ({
+            id: `${type}-${index + 1}`,
+            name: `${type} Breed ${index + 1}`,
+            breed: breeds[index],
+            characteristics: ['Friendly', 'Active', 'Healthy'],
+            image: img,
+            price: 500 + (index * 150),
+            link: `/pets/${type.toLowerCase()}/${index + 1}`
+          }))
         };
       }
       setPets(petData.pets || []);
@@ -77,7 +77,7 @@ const PetServices = () => {
           Discover amazing pets by category. Browse through different types and find detailed information about breeds, characteristics, and prices.
         </p>
 
-        {/* Category Cards */}
+        {/* Category Buttons */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
           {petCategories.map((category) => (
             <button
@@ -93,7 +93,7 @@ const PetServices = () => {
           ))}
         </div>
 
-        {/* Loading State */}
+        {/* Loading Spinner */}
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -101,7 +101,7 @@ const PetServices = () => {
           </div>
         )}
 
-        {/* Pet Display */}
+        {/* Pet Grid */}
         {!loading && selectedCategory && pets.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-8 text-gray-800 text-center">
@@ -109,11 +109,14 @@ const PetServices = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {pets.map((pet) => (
-                <div key={pet.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                <div
+                  key={pet.id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300"
+                >
                   <img
                     src={pet.image}
                     alt={pet.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-64 object-contain bg-white"
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-semibold mb-2 text-gray-800">{pet.name}</h3>
@@ -135,9 +138,12 @@ const PetServices = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-2xl font-bold text-green-600">${pet.price}</span>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+                      <a
+                        href={pet.link}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+                      >
                         Learn More
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -146,7 +152,7 @@ const PetServices = () => {
           </div>
         )}
 
-        {/* No Selection State */}
+        {/* No Selection */}
         {!selectedCategory && !loading && (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">🐾</div>
@@ -160,4 +166,3 @@ const PetServices = () => {
 };
 
 export default PetServices;
-

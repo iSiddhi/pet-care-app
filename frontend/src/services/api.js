@@ -130,6 +130,30 @@ export const apiService = {
         { id: 6, url: 'https://via.placeholder.com/300x200/0891B2/FFFFFF?text=Pet+6', caption: 'Gentle Turtle' }
       ];
     }
+  },
+
+  // Chatbot message
+  chatWithBot: async (message) => {
+    try {
+      const response = await api.post('/chatbot', { message });
+      return response.data.reply;
+    } catch (error) {
+      console.error('Error chatting with bot:', error);
+      // Return mock responses if backend is not available
+      const mockResponses = [
+        "I'd recommend the Royal Canin brand for your pet's nutritional needs.",
+        "For a dog with skin allergies, try a limited ingredient diet and consult your vet.",
+        "Cats typically need annual wellness exams with your veterinarian.",
+        "The best exercise for your dog depends on their breed, age, and health status.",
+        "Puppies should be socialized between 3-14 weeks of age for best results.",
+        "Regular grooming helps prevent matting and skin issues in long-haired pets.",
+        "I can help you find a pet sitter through our service partners.",
+        "Fish tanks should be cleaned regularly, but only partially to maintain healthy bacteria.",
+        "Hamsters typically live 2-3 years with proper care and nutrition.",
+        "Feel free to book a grooming appointment through our services page!"
+      ];
+      return mockResponses[Math.floor(Math.random() * mockResponses.length)];
+    }
   }
 };
 

@@ -14,7 +14,6 @@ const DiseasePrediction = () => {
 
   const petTypes = ['Dog', 'Cat', 'Rabbit', 'Birds', 'Fish', 'Turtle'];
 
-  // Mock breed data
   const breedData = {
     Dog: ['Golden Retriever', 'Labrador', 'German Shepherd', 'Bulldog', 'Poodle', 'Beagle', 'Rottweiler'],
     Cat: ['Persian', 'Siamese', 'Maine Coon', 'British Shorthair', 'Ragdoll', 'Abyssinian', 'Russian Blue'],
@@ -52,17 +51,14 @@ const DiseasePrediction = () => {
     setShowResult(false);
 
     try {
-      // Try to call actual API first, fallback to mock prediction
       let predictionResult;
       try {
         predictionResult = await apiService.predictDisease(formData);
       } catch (error) {
         console.log('API call failed, using mock prediction');
-        // Mock prediction based on symptoms
         predictionResult = generateMockPrediction(formData);
       }
 
-      // Simulate API delay
       setTimeout(() => {
         setPrediction(predictionResult);
         setLoading(false);
@@ -78,8 +74,7 @@ const DiseasePrediction = () => {
 
   const generateMockPrediction = (data) => {
     const symptoms = data.symptoms.toLowerCase();
-    
-    // Simple keyword-based mock prediction
+
     if (symptoms.includes('cough') || symptoms.includes('breathing')) {
       return {
         disease: 'Respiratory Infection',
@@ -173,8 +168,14 @@ const DiseasePrediction = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <div
+      className="min-h-screen bg-cover bg-center py-8 relative"
+      style={{ backgroundImage: "url('/diseaseAI/Stethoscope.png')" }}
+    >
+      <div className="absolute inset-2 bg-white/60"></div>
+
+
+      <div className="container mx-auto px-4 max-w-4xl relative z-10">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">AI Disease Prediction</h1>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
           Our advanced AI system helps identify potential health issues in your pets. Please note this is for informational purposes only and should not replace professional veterinary diagnosis.
@@ -183,9 +184,7 @@ const DiseasePrediction = () => {
         {/* Warning Banner */}
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
           <div className="flex">
-            <div className="flex-shrink-0">
-              <span className="text-yellow-400 text-xl">⚠️</span>
-            </div>
+            <span className="text-yellow-400 text-xl">⚠️</span>
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
                 <strong>Important:</strong> This AI prediction is for educational purposes only. 
@@ -196,95 +195,68 @@ const DiseasePrediction = () => {
         </div>
 
         {!showResult ? (
-          // Prediction Form
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-semibold mb-6 text-gray-800">Pet Health Assessment</h2>
-            
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pet Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pet Type *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Pet Type *</label>
                   <select
                     name="pet"
                     value={formData.pet}
                     onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Select Pet Type</option>
                     {petTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
+                      <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Breed */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Breed *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Breed *</label>
                   <select
                     name="breed"
                     value={formData.breed}
                     onChange={handleInputChange}
                     disabled={!formData.pet}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                     required
                   >
                     <option value="">Select Breed</option>
                     {breeds.map((breed) => (
-                      <option key={breed} value={breed}>
-                        {breed}
-                      </option>
+                      <option key={breed} value={breed}>{breed}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Symptoms */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Symptoms and Observations *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Symptoms *</label>
                 <textarea
                   name="symptoms"
                   value={formData.symptoms}
                   onChange={handleInputChange}
-                  rows={6}
-                  placeholder="Please describe any symptoms, behaviors, or changes you've noticed in your pet. Be as specific as possible (e.g., 'coughing for 2 days', 'not eating since yesterday', 'scratching excessively')..."
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={5}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   required
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  Minimum 10 characters. Include duration, frequency, and any other relevant details.
-                </p>
               </div>
 
-              {/* Submit Button */}
               <div className="flex justify-center space-x-4">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Analyzing...
-                    </span>
-                  ) : (
-                    '🔬 Analyze Symptoms'
-                  )}
+                  {loading ? 'Analyzing...' : '🔬 Analyze Symptoms'}
                 </button>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition duration-300"
+                  className="bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600"
                 >
                   🔄 Reset Form
                 </button>
@@ -292,7 +264,6 @@ const DiseasePrediction = () => {
             </form>
           </div>
         ) : (
-          // Prediction Results
           <div className="bg-white rounded-lg shadow-md p-8">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold mb-2 text-gray-800">Analysis Complete</h2>
@@ -301,7 +272,6 @@ const DiseasePrediction = () => {
 
             {prediction && (
               <div className="space-y-6">
-                {/* Prediction Header */}
                 <div className="bg-blue-50 rounded-lg p-6 text-center">
                   <h3 className="text-2xl font-bold text-blue-900 mb-2">{prediction.disease}</h3>
                   <p className="text-blue-700 mb-3">{prediction.description}</p>
@@ -315,7 +285,6 @@ const DiseasePrediction = () => {
                   </div>
                 </div>
 
-                {/* Urgency */}
                 <div className="bg-orange-50 border-l-4 border-orange-400 p-4">
                   <div className="flex">
                     <span className="text-orange-400 text-xl mr-3">⏰</span>
@@ -326,7 +295,6 @@ const DiseasePrediction = () => {
                   </div>
                 </div>
 
-                {/* Care Tips */}
                 <div>
                   <h4 className="text-lg font-semibold mb-4 text-gray-800">Recommended Care Tips</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -339,17 +307,16 @@ const DiseasePrediction = () => {
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex justify-center space-x-4 pt-6 border-t">
                   <button
                     onClick={resetForm}
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700"
                   >
                     New Analysis
                   </button>
                   <button
                     onClick={() => window.print()}
-                    className="bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition duration-300"
+                    className="bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600"
                   >
                     Print Results
                   </button>
@@ -359,7 +326,6 @@ const DiseasePrediction = () => {
           </div>
         )}
 
-        {/* Disclaimer */}
         <div className="mt-8 bg-gray-100 rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-3 text-gray-800">Important Disclaimer</h3>
           <ul className="text-sm text-gray-600 space-y-2">
@@ -375,4 +341,3 @@ const DiseasePrediction = () => {
 };
 
 export default DiseasePrediction;
-

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
-import { useAppContext } from '../context/AppContext';
-import { actionTypes } from '../context/AppContext';
+import { useAppContext } from '../context/AppContext';  
+// import { actionTypes } from '../conte xt/AppContext';
 
 const PetFinder = () => {
   const { state, dispatch } = useAppContext();
@@ -14,7 +14,6 @@ const PetFinder = () => {
 
   const petTypes = ['Dog', 'Cat', 'Rabbit', 'Birds', 'Fish', 'Turtle'];
 
-  // Mock pet data for filtering
   const allPets = [
     { id: 1, type: 'Dog', breed: 'Golden Retriever', price: 800, age: '2 years', characteristics: ['Friendly', 'Active'], image: 'https://via.placeholder.com/200x200/4F46E5/FFFFFF?text=Golden+Retriever' },
     { id: 2, type: 'Dog', breed: 'Labrador', price: 700, age: '1 year', characteristics: ['Loyal', 'Gentle'], image: 'https://via.placeholder.com/200x200/059669/FFFFFF?text=Labrador' },
@@ -38,12 +37,10 @@ const PetFinder = () => {
 
   const fetchBreeds = async (petType) => {
     try {
-      // Try to fetch from API, fallback to mock data
       let breedData;
       try {
         breedData = await apiService.getBreedsByPet(petType);
       } catch (error) {
-        // Mock breed data
         const mockBreeds = {
           Dog: ['Golden Retriever', 'Labrador', 'German Shepherd', 'Bulldog', 'Poodle'],
           Cat: ['Persian', 'Siamese', 'Maine Coon', 'British Shorthair', 'Ragdoll'],
@@ -63,8 +60,6 @@ const PetFinder = () => {
 
   const handleSearch = () => {
     setLoading(true);
-    
-    // Filter pets based on criteria
     let filteredPets = allPets;
 
     if (selectedPet) {
@@ -75,12 +70,10 @@ const PetFinder = () => {
       filteredPets = filteredPets.filter(pet => pet.breed === selectedBreed);
     }
 
-    // Filter by price range
-    filteredPets = filteredPets.filter(pet => 
+    filteredPets = filteredPets.filter(pet =>
       pet.price >= priceRange[0] && pet.price <= priceRange[1]
     );
 
-    // Simulate loading delay
     setTimeout(() => {
       setResults(filteredPets);
       setLoading(false);
@@ -96,12 +89,17 @@ const PetFinder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div
+      className="min-h-screen bg-cover bg-center py-8 backdrop-blur-sm bg-white/12"
+      style={{ backgroundImage: "url('/bestpet/backk.png')" }}
+    >
       <div className="container mx-auto px-4">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Best Pet Finder</h1>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
           Find your perfect companion! Use our smart filters to discover pets that match your preferences and budget.
         </p>
+
+    
 
         {/* Search Form */}
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
@@ -301,4 +299,3 @@ const PetFinder = () => {
 };
 
 export default PetFinder;
-

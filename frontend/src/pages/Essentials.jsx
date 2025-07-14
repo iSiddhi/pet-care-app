@@ -13,7 +13,7 @@ const Essentials = () => {
         name: 'Premium Dog Food',
         category: 'Food',
         price: 45.99,
-        image: '/essentials/dog-food.jpeg',
+        image: '/essentials/dog-food.png',
         description: 'High-quality nutrition for adult dogs',
         inStock: true
       },
@@ -58,7 +58,7 @@ const Essentials = () => {
         name: 'Dog Training Treats',
         category: 'Food',
         price: 15.99,
-        image: 'https://via.placeholder.com/200x200/0891B2/FFFFFF?text=Treats',
+        image: '/essentials/training-treats.png',
         description: 'Healthy training rewards',
         inStock: true
       }
@@ -87,7 +87,7 @@ const Essentials = () => {
         name: 'Cat Scratching Post',
         category: 'Furniture',
         price: 49.99,
-        image: '/essentials/scratching-post.png',
+        image: '/essentials/scratch-post.png',
         description: 'Multi-level scratching tower',
         inStock: true
       },
@@ -105,7 +105,7 @@ const Essentials = () => {
         name: 'Cat Carrier',
         category: 'Travel',
         price: 54.99,
-        image: '/essentials/carrier.png',
+        image: '/essentials/cat-carrier.png',
         description: 'Comfortable travel carrier',
         inStock: true
       },
@@ -114,7 +114,7 @@ const Essentials = () => {
         name: 'Cat Treats - Salmon',
         category: 'Food',
         price: 12.99,
-        image: '/essentials/cat-treats.png',
+        image: '/essentials/cat-treat.png',
         description: 'Delicious salmon flavor treats',
         inStock: true
       }
@@ -126,7 +126,6 @@ const Essentials = () => {
       type: actionTypes.ADD_TO_CART,
       payload: { ...item, quantity: 1 }
     });
-    // You can add a toast notification here
     alert(`${item.name} added to cart!`);
   };
 
@@ -188,11 +187,11 @@ const Essentials = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {essentialItems[activeTab].map((item) => (
             <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-              <div className="relative">
+              <div className="relative bg-white flex justify-center items-center h-60">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-48 object-cover"
+                  className="h-full object-contain"
                 />
                 <div className="absolute top-2 left-2">
                   <span className="bg-white rounded-full px-2 py-1 text-sm font-medium flex items-center">
@@ -207,11 +206,11 @@ const Essentials = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">{item.name}</h3>
                 <p className="text-gray-600 mb-4">{item.description}</p>
-                
+
                 <div className="flex justify-between items-center">
                   <span className="text-2xl font-bold text-green-600">${item.price}</span>
                   <button
@@ -264,4 +263,3 @@ const Essentials = () => {
 };
 
 export default Essentials;
-
