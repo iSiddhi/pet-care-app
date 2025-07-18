@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base API URL - adjust this based on your backend
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://backend-1-ts3c.onrender.com/api';
 
 // Create axios instance
 const api = axios.create({

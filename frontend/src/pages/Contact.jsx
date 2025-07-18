@@ -29,7 +29,6 @@ const Contact = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -53,7 +52,6 @@ const Contact = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ Fixed handleSubmit logic
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -62,7 +60,7 @@ const Contact = () => {
     setSubmitStatus(null);
 
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://backend-1-ts3c.onrender.com/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
