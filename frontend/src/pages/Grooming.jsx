@@ -1,144 +1,246 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Scissors, Sparkles, Hand, Smile, Droplets, Star,
+  Mail, Phone, Clock, Award, AlertCircle, CalendarCheck,
+} from 'lucide-react';
+
+import Container from '../components/ui/Container';
+import PageHeader from '../components/ui/PageHeader';
+import SectionHeading from '../components/ui/SectionHeading';
+import Button from '../components/ui/Button';
+import EmptyState from '../components/ui/EmptyState';
+import { stagger, fadeUp, revealOnce } from '../components/ui/motion';
+import { apiService } from '../services/api';
+
+const SERVICES = [
+  { name: 'Basic Grooming', price: '$35–50', duration: '1–2 hours', icon: Scissors, desc: 'Bath, blow-dry, brush-out and a tidy trim.' },
+  { name: 'Premium Spa', price: '$60–80', duration: '2–3 hours', icon: Sparkles, desc: 'Deep conditioning, de-shed treatment and massage.' },
+  { name: 'Nail Trimming', price: '$15–25', duration: '30 mins', icon: Hand, desc: 'Clip, file and paw-pad check.' },
+  { name: 'Dental Care', price: '$25–40', duration: '45 mins', icon: Smile, desc: 'Scaling, polish and breath freshening.' },
+  { name: 'Flea Treatment', price: '$30–45', duration: '1 hour', icon: Droplets, desc: 'Medicated bath and full coat inspection.' },
+  { name: 'Full Package', price: '$80–120', duration: '3–4 hours', icon: Award, desc: 'Everything above, in one sitting.' },
+];
+
+const STEPS = [
+  { n: '01', title: 'Pick a groomer', body: 'Browse specialities and pick who suits your pet.' },
+  { n: '02', title: 'Choose a slot', body: 'Eight slots a day, seven days a week.' },
+  { n: '03', title: 'Drop in', body: "We'll message you when they're ready to collect." },
+];
 
 const Grooming = () => {
-  const navigate = useNavigate();
+  const [groomers, setGroomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const groomers = [
-    {
-      id: 1,
-      name: 'Nikhil Sharma',
-      avatar: '/groomers/Nikhil.png',
-      email: 'nikhil@gmail.com',
-      phone: '+91-9876543210',
-      specialties: ['Dog Grooming', 'Spa Treatments', 'Puppy Care'],
-    },
-    {
-      id: 2,
-      name: 'Kunal Sharma',
-      avatar: '/groomers/Kunal.png',
-      email: 'kunal@gmail.com',
-      phone: '+91-9876501234',
-      specialties: ['Nail Trimming', 'Cat Grooming', 'Ear Cleaning'],
-    },
-    {
-      id: 3,
-      name: 'Nikky Singh',
-      avatar: '/groomers/Nikky.png',
-      email: 'Nikky@gmail.com',
-      phone: '+91-9876567890',
-      specialties: ['Full Grooming', 'Dental Care', 'Flea Treatment'],
-    },
-  ];
+  const load = () => {
+    setLoading(true);
+    setError(null);
+    apiService
+      .getGroomers()
+      .then((list) => setGroomers(Array.isArray(list) ? list : []))
+      .catch(() => {
+        setGroomers([]);
+        setError("We couldn't load our groomers. Make sure the server is running.");
+      })
+      .finally(() => setLoading(false));
+  };
 
-  const services = [
-    { name: 'Basic Grooming', price: '$35-50', duration: '1-2 hours', icon: '✂️' },
-    { name: 'Premium Spa', price: '$60-80', duration: '2-3 hours', icon: '🛁' },
-    { name: 'Nail Trimming', price: '$15-25', duration: '30 mins', icon: '💅' },
-    { name: 'Dental Care', price: '$25-40', duration: '45 mins', icon: '🦷' },
-    { name: 'Flea Treatment', price: '$30-45', duration: '1 hour', icon: '🧼' },
-    { name: 'Full Package', price: '$80-120', duration: '3-4 hours', icon: '⭐' },
-  ];
+  useEffect(load, []);
 
   return (
-    // <div className="min-h-screen bg-gray-50 py-8">
-    <div
-  className="min-h-screen bg-cover bg-center py-8 backdrop-blur-sm bg-white/60"
-  style={{ backgroundImage: "url('/home/qyi.png')" }}
->
-
-      <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Professional Pet Grooming</h1>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          Our experienced groomers provide top-quality care for your pets. From basic grooming to premium spa treatments, we ensure your furry friends look and feel their best.
-        </p>
-
-        {/* Services */}
-        <div className="mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300">
-                <div className="text-center">
-                  <div className="text-3xl mb-3">{service.icon}</div>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-800">{service.name}</h3>
-                  <p className="text-blue-600 font-semibold text-xl mb-1">{service.price}</p>
-                  <p className="text-gray-600 text-sm">{service.duration}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="min-h-screen pb-24">
+      <PageHeader
+        eyebrow="Grooming"
+        title="A spa day, booked in under a minute"
+        subtitle="Vetted groomers, transparent pricing and no surprise add-ons at pickup."
+      >
+        <div className="flex flex-wrap gap-3">
+          <Button href="#groomers" size="lg">
+            <CalendarCheck size={17} strokeWidth={2.2} />
+            Book a session
+          </Button>
+          <Button to="/contact" variant="outline" size="lg">
+            Ask a question
+          </Button>
         </div>
+      </PageHeader>
 
-        {/* Groomers */}
-        <div>
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">Meet Our Groomers</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {groomers.map((groomer) => (
-              <div key={groomer.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                <div className="p-6 text-center">
-                  <img
-                    src={groomer.avatar}
-                    alt={groomer.name}
-                    className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
-                  />
-                  <h3 className="text-xl font-semibold mb-2 text-gray-800">{groomer.name}</h3>
+      {/* Services */}
+      <section className="py-16">
+        <Container>
+          <SectionHeading
+            align="left"
+            eyebrow="Services"
+            title="What we offer"
+            subtitle="Flat pricing by service. The range covers small to large breeds."
+            className="mx-0 mb-12"
+          />
 
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Specializes in:</p>
-                    <div className="flex justify-center flex-wrap gap-2">
-                      {groomer.specialties.map((specialty, index) => (
-                        <span
-                          key={index}
-                          className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center text-gray-600">
-                      <span className="mr-2">📧</span>
-                      <a href={`mailto:${groomer.email}`} className="hover:text-blue-600">
-                        {groomer.email}
-                      </a>
-                    </div>
-                    <div className="flex items-center justify-center text-gray-600">
-                      <span className="mr-2">📞</span>
-                      <a href={`tel:${groomer.phone}`} className="hover:text-blue-600">
-                        {groomer.phone}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 space-y-2">
-                    <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = `/book-appointment/${groomer.id}`; }} className="block w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 text-center">
-                      Book Appointment
-                    </a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); window.location.href = `/groomer-profile/${groomer.id}`; }} className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition duration-300 text-center">
-                      View Profile
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Book Now CTA */}
-        <div className="mt-16 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 px-8 rounded-lg">
-          <h2 className="text-3xl font-bold mb-4">Ready to Book?</h2>
-          <p className="text-xl mb-6">Give your pet the care they deserve</p>
-          <button
-            onClick={() => navigate('/consult-adii-jain')}
-            className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300"
+          <motion.div
+            variants={stagger(0, 0.06)}
+            {...revealOnce}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
-            Book Now
-          </button>
-        </div>
-      </div>
+            {SERVICES.map(({ name, price, duration, icon: Icon, desc }) => (
+              <motion.div
+                key={name}
+                variants={fadeUp}
+                className="group p-7 rounded-3xl bg-cream border border-hairline hover:border-blush-200 hover:shadow-lift transition-all duration-300"
+              >
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-50 text-blush-500 transition-colors group-hover:bg-blush-100">
+                    <Icon size={21} strokeWidth={1.9} />
+                  </span>
+                  <span className="font-display text-lg font-semibold text-ink">{price}</span>
+                </div>
+
+                <h3 className="text-lg font-semibold text-ink mb-2">{name}</h3>
+                <p className="text-sm text-ink-soft leading-relaxed mb-5">{desc}</p>
+
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-mute">
+                  <Clock size={13} />
+                  {duration}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </Container>
+      </section>
+
+      {/* Groomers — live from the API */}
+      <section id="groomers" className="py-16 bg-shell scroll-mt-24">
+        <Container>
+          <SectionHeading
+            eyebrow="The team"
+            title="Meet your groomers"
+            subtitle="Every one of them is trained, insured and genuinely fond of animals."
+            className="mb-14"
+          />
+
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="rounded-3xl bg-cream border border-hairline overflow-hidden">
+                  <div className="aspect-[4/3] shimmer" />
+                  <div className="p-6 space-y-3">
+                    <div className="h-5 w-1/2 rounded-full shimmer" />
+                    <div className="h-4 w-3/4 rounded-full shimmer" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <EmptyState
+              tone="error"
+              icon={AlertCircle}
+              title="Something went wrong"
+              body={error}
+              actionLabel="Try again"
+              onAction={load}
+            />
+          ) : (
+            <motion.div
+              variants={stagger(0, 0.08)}
+              {...revealOnce}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {groomers.map((g) => (
+                <motion.article
+                  key={g._id || g.id}
+                  variants={fadeUp}
+                  className="group rounded-3xl bg-cream border border-hairline overflow-hidden hover:shadow-lift transition-shadow duration-300"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-mist">
+                    <img
+                      src={g.avatar}
+                      alt={g.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    {g.rating && (
+                      <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full glass text-xs font-semibold text-ink">
+                        <Star size={12} className="fill-blush-400 text-blush-400" />
+                        {g.rating}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-ink">{g.name}</h3>
+                    {g.experienceYears > 0 && (
+                      <p className="text-sm text-ink-mute mt-0.5">
+                        {g.experienceYears} years experience
+                      </p>
+                    )}
+
+                    {g.specialties?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-4">
+                        {g.specialties.map((s) => (
+                          <span
+                            key={s}
+                            className="text-xs px-2.5 py-1 rounded-full bg-blush-50 text-blush-600 font-medium"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-5 pt-5 border-t border-hairline space-y-2.5">
+                      {g.email && (
+                        <a
+                          href={`mailto:${g.email}`}
+                          className="flex items-center gap-2.5 text-sm text-ink-soft hover:text-blush-500 transition-colors"
+                        >
+                          <Mail size={14} strokeWidth={1.9} />
+                          <span className="truncate">{g.email}</span>
+                        </a>
+                      )}
+                      {g.phone && (
+                        <a
+                          href={`tel:${g.phone}`}
+                          className="flex items-center gap-2.5 text-sm text-ink-soft hover:text-blush-500 transition-colors"
+                        >
+                          <Phone size={14} strokeWidth={1.9} />
+                          {g.phone}
+                        </a>
+                      )}
+                    </div>
+
+                    <Button to="/contact" variant="soft" size="sm" className="w-full mt-5">
+                      Request a slot
+                    </Button>
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
+          )}
+        </Container>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20">
+        <Container>
+          <SectionHeading eyebrow="How it works" title="Three steps, that's it" className="mb-14" />
+
+          <motion.div
+            variants={stagger(0, 0.1)}
+            {...revealOnce}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {STEPS.map((s) => (
+              <motion.div key={s.n} variants={fadeUp} className="relative">
+                <span className="font-display text-5xl font-semibold text-blush-200 leading-none">
+                  {s.n}
+                </span>
+                <h3 className="mt-5 text-lg font-semibold text-ink">{s.title}</h3>
+                <p className="mt-2 text-sm text-ink-soft leading-relaxed">{s.body}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </Container>
+      </section>
     </div>
   );
 };

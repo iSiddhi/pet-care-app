@@ -1,15 +1,133 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------
+   Design tokens — soft pastel, premium execution.
+   Pastels carry the mood; near-black ink and generous whitespace
+   keep it from reading as childish.
+----------------------------------------------------------------*/
 @theme {
-  --color-green: #B2E5D5;
-  --color-lavender: #E6D4EC;
-  --color-offwhite: #F5F5F5;
+  /* Surfaces */
+  --color-cream: #FEFCFB;
+  --color-shell: #FBF6F4;
+  --color-mist: #F6F1F4;
+
+  /* Blush — primary */
+  --color-blush-50:  #FDF2F5;
+  --color-blush-100: #FBE4EA;
+  --color-blush-200: #F7CCD8;
+  --color-blush-300: #F0A9BE;
+  --color-blush-400: #E57E9D;
+  --color-blush-500: #D45E82;
+  --color-blush-600: #B84A6B;
+
+  /* Lavender — secondary */
+  --color-lilac-50:  #F7F4FB;
+  --color-lilac-100: #EFE8F6;
+  --color-lilac-200: #E0D3EE;
+  --color-lilac-300: #C9B2E0;
+  --color-lilac-400: #AC8ACE;
+
+  /* Mint — tertiary */
+  --color-sage-50:  #F1F9F6;
+  --color-sage-100: #DEF1E9;
+  --color-sage-200: #BFE3D5;
+  --color-sage-300: #92CEB7;
+
+  /* Ink */
+  --color-ink:      #1F1A1C;
+  --color-ink-soft: #5C5156;
+  --color-ink-mute: #918288;
+  --color-hairline: #EDE4E7;
+
+  /* Legacy aliases so older pages keep compiling */
+  --color-offwhite: #FEFCFB;
+  --color-lavender: #EFE8F6;
+  --color-green:    #DEF1E9;
+
+  /* Type */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Radii — large and soft, the single biggest "premium" lever */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  /* Shadows — low opacity, warm tint, never grey */
+  --shadow-soft: 0 1px 2px rgb(31 26 28 / 0.04), 0 8px 24px -8px rgb(31 26 28 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(31 26 28 / 0.04), 0 18px 40px -12px rgb(31 26 28 / 0.14);
+  --shadow-glow: 0 10px 40px -10px rgb(212 94 130 / 0.35);
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    background-color: theme(color.offwhite);
-    color: theme(color.gray.800);
-    font-family: ui-sans-serif, system-ui, sans-serif;
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  ::selection {
+    background-color: var(--color-blush-200);
+    color: var(--color-ink);
+  }
+
+  /* Respect users who don't want motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Thin, unobtrusive scrollbar for the chat panel */
+  .chat-scrollbar::-webkit-scrollbar { width: 5px; }
+  .chat-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .chat-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-blush-200);
+    border-radius: 999px;
+  }
+
+  /* Hides the horizontal scrollbar on pill rails */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Frosted layer used by the navbar and overlay chips */
+  .glass {
+    background-color: rgb(254 252 251 / 0.72);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  /* Shimmer for skeleton placeholders */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-mist) 25%,
+      var(--color-blush-50) 50%,
+      var(--color-mist) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
   }
 }

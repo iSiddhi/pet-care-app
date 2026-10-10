@@ -1,85 +1,186 @@
-import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  Cpu, Stethoscope, HeartHandshake, ShieldCheck,
+  FileText, CalendarCheck, BellRing, BookOpen, Check,
+} from 'lucide-react';
 
-const About = () => {
-  return (
-    <div
-      className="min-h-screen flex flex-col bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/about/about.png')" }}
-    >
-      {/* Overlay for readability */}
-      {/* <div className="bg-white/80 flex-grow"> */}
-      <div className="bg-black/10 min-h-screen">
+import Container from '../components/ui/Container';
+import PageHeader from '../components/ui/PageHeader';
+import SectionHeading from '../components/ui/SectionHeading';
+import Button from '../components/ui/Button';
+import { stagger, fadeUp, revealOnce, EASE } from '../components/ui/motion';
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-              About PetCare
-            </h1>
+const pillars = [
+  {
+    icon: Cpu,
+    title: 'Technology-driven',
+    body: 'We use machine learning to surface health insights and recommendations that fit your specific pet, not a generic average.',
+  },
+  {
+    icon: Stethoscope,
+    title: 'Veterinary partnership',
+    body: 'Licensed vets and care professionals review what we publish, and you can book them through the same platform.',
+  },
+];
 
-            <div className="bg-purple-100 rounded-lg p-8 mb-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                Our Mission
-              </h2>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                At PetCare, we believe that every pet deserves the best possible care.
-                Our platform combines modern technology with veterinary expertise to provide
-                pet owners with the tools they need to keep their furry friends healthy and happy.
-              </p>
-            </div>
+const offerings = [
+  { icon: FileText, label: 'Pet health record management' },
+  { icon: CalendarCheck, label: 'Veterinary appointment scheduling' },
+  { icon: Stethoscope, label: 'AI-assisted symptom guidance' },
+  { icon: BellRing, label: 'Vaccination and medication reminders' },
+  { icon: BookOpen, label: 'Educational resources and care tips' },
+  { icon: ShieldCheck, label: 'Health-screened pet listings' },
+];
 
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div className="bg-green-100 rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                  Technology-Driven
-                </h3>
-                <p className="text-gray-700">
-                  We leverage artificial intelligence and machine learning to provide
-                  personalized health insights and recommendations for your pets.
-                </p>
-              </div>
-              <div className="bg-green-100 rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                  Veterinary Partnership
-                </h3>
-                <p className="text-gray-700">
-                  Our platform connects you with licensed veterinarians and pet care
-                  professionals in your area for seamless appointment scheduling.
-                </p>
-              </div>
-            </div>
+const stats = [
+  ['2,000+', 'Families served'],
+  ['47', 'Breeds listed'],
+  ['4.9', 'Average rating'],
+  ['6 mo', 'Free follow-up care'],
+];
 
-            <div className="bg-white rounded-lg p-8 shadow-sm">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                What We Offer
-              </h2>
-              <ul className="space-y-3 text-gray-700">
-                <li className="flex items-start">
-                  <span className="text-green-600 mr-2">•</span>
-                  Comprehensive pet health record management
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-600 mr-2">•</span>
-                  Easy veterinary appointment scheduling
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-600 mr-2">•</span>
-                  AI-powered health monitoring and alerts
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-600 mr-2">•</span>
-                  Vaccination and medication reminders
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-600 mr-2">•</span>
-                  Educational resources and pet care tips
-                </li>
-              </ul>
-            </div>
+const About = () => (
+  <div className="min-h-screen pb-24">
+    <PageHeader
+      eyebrow="About"
+      title="Good care shouldn't be this complicated"
+      subtitle="We built Pet Care Hub because looking after one animal meant juggling five different apps, three phone numbers and a shoebox of paper records."
+    />
+
+    {/* Mission with image */}
+    <Container className="pt-6">
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <motion.div variants={fadeUp} {...revealOnce} className="relative">
+          <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-mist">
+            <img
+              src="/about/about.png"
+              alt="A pet being cared for"
+              className="w-full h-full object-cover"
+            />
           </div>
-        </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
+            className="absolute -bottom-6 -right-2 sm:right-6 px-6 py-5 rounded-3xl bg-cream shadow-lift border border-hairline"
+          >
+            <span className="grid place-items-center w-10 h-10 rounded-2xl bg-blush-100 text-blush-600 mb-3">
+              <HeartHandshake size={19} strokeWidth={1.9} />
+            </span>
+            <p className="font-display text-xl font-semibold text-ink">Since 2024</p>
+            <p className="text-xs text-ink-mute mt-0.5">Built in Punjab, India</p>
+          </motion.div>
+        </motion.div>
+
+        <motion.div variants={stagger(0, 0.1)} {...revealOnce}>
+          <motion.span
+            variants={fadeUp}
+            className="text-xs font-semibold uppercase tracking-[0.18em] text-blush-500"
+          >
+            Our mission
+          </motion.span>
+          <motion.h2
+            variants={fadeUp}
+            className="mt-4 text-3xl sm:text-4xl leading-[1.12] text-ink"
+          >
+            Every pet deserves the best care we can give them
+          </motion.h2>
+          <motion.p
+            variants={fadeUp}
+            className="mt-6 text-base sm:text-lg text-ink-soft leading-relaxed"
+          >
+            Our platform combines modern technology with veterinary expertise to
+            give pet owners the tools they need — finding the right companion,
+            keeping them healthy, and knowing who to call when something seems off.
+          </motion.p>
+          <motion.p
+            variants={fadeUp}
+            className="mt-4 text-base text-ink-soft leading-relaxed"
+          >
+            No upsells disguised as advice. No hidden fees at pickup. Just the
+            information and services you actually need.
+          </motion.p>
+        </motion.div>
       </div>
-    </div>
-  );
-};
+    </Container>
+
+    {/* Stats band */}
+    <Container className="pt-24">
+      <motion.div
+        variants={stagger(0, 0.08)}
+        {...revealOnce}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-px rounded-[2rem] overflow-hidden bg-hairline"
+      >
+        {stats.map(([value, label]) => (
+          <motion.div key={label} variants={fadeUp} className="bg-cream px-6 py-10 text-center">
+            <p className="font-display text-3xl sm:text-4xl font-semibold text-ink">{value}</p>
+            <p className="text-sm text-ink-soft mt-2">{label}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+    </Container>
+
+    {/* Pillars */}
+    <section className="py-24">
+      <Container>
+        <motion.div
+          variants={stagger(0, 0.1)}
+          {...revealOnce}
+          className="grid md:grid-cols-2 gap-6"
+        >
+          {pillars.map(({ icon: Icon, title, body }) => (
+            <motion.div
+              key={title}
+              variants={fadeUp}
+              className="p-8 sm:p-10 rounded-[2rem] bg-shell border border-hairline"
+            >
+              <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-600 mb-7">
+                <Icon size={21} strokeWidth={1.9} />
+              </span>
+              <h3 className="font-display text-xl font-semibold text-ink mb-3">{title}</h3>
+              <p className="text-[0.95rem] text-ink-soft leading-relaxed">{body}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </Container>
+    </section>
+
+    {/* What we offer */}
+    <section className="py-20 bg-shell">
+      <Container>
+        <SectionHeading
+          eyebrow="What we offer"
+          title="Everything under one roof"
+          className="mb-14"
+        />
+
+        <motion.div
+          variants={stagger(0, 0.06)}
+          {...revealOnce}
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto"
+        >
+          {offerings.map(({ icon: Icon, label }) => (
+            <motion.div
+              key={label}
+              variants={fadeUp}
+              className="flex items-center gap-4 p-5 rounded-2xl bg-cream border border-hairline"
+            >
+              <span className="grid place-items-center w-10 h-10 rounded-xl bg-blush-50 text-blush-500 shrink-0">
+                <Icon size={18} strokeWidth={1.9} />
+              </span>
+              <span className="text-sm font-medium text-ink leading-snug">{label}</span>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <div className="mt-14 flex flex-wrap justify-center gap-3">
+          <Button to="/pet-services" size="lg">Browse pets</Button>
+          <Button to="/contact" variant="outline" size="lg">Talk to us</Button>
+        </div>
+      </Container>
+    </section>
+  </div>
+);
 
 export default About;

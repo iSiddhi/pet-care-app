@@ -1,263 +1,202 @@
-import React, { useState } from 'react';
-import { useAppContext } from '../context/AppContext';
-import { actionTypes } from '../context/AppContext';
+import { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  PawPrint, Cat, Rabbit, Bird, Fish, Turtle,
+  ShoppingBag, PackageX, AlertCircle, RotateCcw,
+} from 'lucide-react';
+
+import Container from '../components/ui/Container';
+import PageHeader from '../components/ui/PageHeader';
+import Pill from '../components/ui/Pill';
+import EmptyState from '../components/ui/EmptyState';
+import { SkeletonGrid } from '../components/ui/Skeleton';
+import ProductCard from '../components/ProductCard';
+import CartDrawer from '../components/CartDrawer';
+import { stagger, EASE } from '../components/ui/motion';
+import { useCart } from '../context/CartContext';
+import { apiService } from '../services/api';
+
+const PET_TABS = [
+  { name: 'Dog', icon: PawPrint },
+  { name: 'Cat', icon: Cat },
+  { name: 'Rabbit', icon: Rabbit },
+  { name: 'Birds', icon: Bird },
+  { name: 'Fish', icon: Fish },
+  { name: 'Turtle', icon: Turtle },
+];
 
 const Essentials = () => {
-  const { state, dispatch } = useAppContext();
-  const [activeTab, setActiveTab] = useState('Dog');
+  const [petType, setPetType] = useState('Dog');
+  const [category, setCategory] = useState('All');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cart = useCart();
 
-  const essentialItems = {
-    Dog: [
-      {
-        id: 1,
-        name: 'Premium Dog Food',
-        category: 'Food',
-        price: 45.99,
-        image: '/essentials/dog-food.png',
-        description: 'High-quality nutrition for adult dogs',
-        inStock: true
-      },
-      {
-        id: 2,
-        name: 'Dog Leash & Collar Set',
-        category: 'Accessories',
-        price: 29.99,
-        image: '/essentials/leash.png',
-        description: 'Durable leash and collar combo',
-        inStock: true
-      },
-      {
-        id: 3,
-        name: 'Dog Toys Bundle',
-        category: 'Toys',
-        price: 24.99,
-        image: '/essentials/toys.png',
-        description: 'Interactive toys for active play',
-        inStock: false
-      },
-      {
-        id: 4,
-        name: 'Dog Bed - Large',
-        category: 'Comfort',
-        price: 79.99,
-        image: '/essentials/bed.png',
-        description: 'Comfortable orthopedic dog bed',
-        inStock: true
-      },
-      {
-        id: 5,
-        name: 'Dog Grooming Kit',
-        category: 'Grooming',
-        price: 39.99,
-        image: '/essentials/kit.png',
-        description: 'Complete grooming set for dogs',
-        inStock: true
-      },
-      {
-        id: 6,
-        name: 'Dog Training Treats',
-        category: 'Food',
-        price: 15.99,
-        image: '/essentials/training-treats.png',
-        description: 'Healthy training rewards',
-        inStock: true
-      }
-    ],
-    Cat: [
-      {
-        id: 7,
-        name: 'Premium Cat Food',
-        category: 'Food',
-        price: 42.99,
-        image: '/essentials/cat-food.png',
-        description: 'Nutritious food for indoor cats',
-        inStock: true
-      },
-      {
-        id: 8,
-        name: 'Cat Litter Box',
-        category: 'Hygiene',
-        price: 34.99,
-        image: '/essentials/litter-box.png',
-        description: 'Easy-clean litter box system',
-        inStock: true
-      },
-      {
-        id: 9,
-        name: 'Cat Scratching Post',
-        category: 'Furniture',
-        price: 49.99,
-        image: '/essentials/scratch-post.png',
-        description: 'Multi-level scratching tower',
-        inStock: true
-      },
-      {
-        id: 10,
-        name: 'Cat Toy Collection',
-        category: 'Toys',
-        price: 19.99,
-        image: '/essentials/cat-toys.png',
-        description: 'Feather wands and interactive toys',
-        inStock: false
-      },
-      {
-        id: 11,
-        name: 'Cat Carrier',
-        category: 'Travel',
-        price: 54.99,
-        image: '/essentials/cat-carrier.png',
-        description: 'Comfortable travel carrier',
-        inStock: true
-      },
-      {
-        id: 12,
-        name: 'Cat Treats - Salmon',
-        category: 'Food',
-        price: 12.99,
-        image: '/essentials/cat-treat.png',
-        description: 'Delicious salmon flavor treats',
-        inStock: true
-      }
-    ]
-  };
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setError(null);
+    setCategory('All');
 
-  const addToCart = (item) => {
-    dispatch({
-      type: actionTypes.ADD_TO_CART,
-      payload: { ...item, quantity: 1 }
-    });
-    alert(`${item.name} added to cart!`);
-  };
+    apiService
+      .getEssentials(petType)
+      .then((list) => { if (alive) setProducts(list || []); })
+      .catch(() => {
+        if (alive) {
+          setProducts([]);
+          setError("We couldn't load products. Make sure the server is running.");
+        }
+      })
+      .finally(() => { if (alive) setLoading(false); });
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      Food: '🍽️',
-      Accessories: '🎀',
-      Toys: '🎾',
-      Comfort: '🛏️',
-      Grooming: '✂️',
-      Hygiene: '🧽',
-      Furniture: '🏠',
-      Travel: '✈️'
-    };
-    return icons[category] || '📦';
-  };
+    return () => { alive = false; };
+  }, [petType]);
+
+  const categories = useMemo(
+    () => ['All', ...new Set(products.map((p) => p.category).filter(Boolean))],
+    [products]
+  );
+
+  const visible = useMemo(
+    () => (category === 'All' ? products : products.filter((p) => p.category === category)),
+    [products, category]
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Pet Essentials</h1>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          Everything your furry friends need for a happy and healthy life. Browse our curated selection of premium pet supplies.
-        </p>
+    <div className="min-h-screen pb-24">
+      <PageHeader
+        eyebrow="Essentials"
+        title="Everything they need, nothing they don't"
+        subtitle="Food, bedding, toys and care kits — picked for quality, not margin."
+      />
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-lg p-1 shadow-md">
-            {['Dog', 'Cat'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-8 py-3 rounded-lg font-semibold transition duration-300 ${
-                  activeTab === tab
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-600 hover:text-blue-600'
-                }`}
-              >
-                {tab === 'Dog' ? '🐕' : '🐱'} {tab} Essentials
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Cart Summary */}
-        <div className="bg-white rounded-lg p-4 mb-8 shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-lg font-semibold mr-2">🛒 Cart:</span>
-              <span className="text-gray-600">{state.cart.length} items</span>
+      {/* Pet tabs */}
+      <div className="sticky top-[72px] z-30 glass border-y border-hairline">
+        <Container>
+          <div className="flex items-center gap-4 py-3">
+            <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              {PET_TABS.map(({ name, icon }) => (
+                <Pill
+                  key={name}
+                  icon={icon}
+                  active={petType === name}
+                  onClick={() => setPetType(name)}
+                  layoutId="essentials-pill"
+                >
+                  {name}
+                </Pill>
+              ))}
             </div>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300">
-              View Cart
+
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative shrink-0 grid place-items-center w-10 h-10 rounded-full border border-hairline text-ink hover:border-blush-300 hover:bg-blush-50 transition-colors"
+              aria-label="Open bag"
+            >
+              <ShoppingBag size={17} strokeWidth={1.9} />
+              <AnimatePresence>
+                {cart.count > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -top-1 -right-1 grid place-items-center min-w-[1.15rem] h-[1.15rem] px-1 rounded-full bg-blush-400 text-white text-[0.65rem] font-bold tabular-nums"
+                  >
+                    {cart.count}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
           </div>
-        </div>
-
-        {/* Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {essentialItems[activeTab].map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-              <div className="relative bg-white flex justify-center items-center h-60">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-full object-contain"
-                />
-                <div className="absolute top-2 left-2">
-                  <span className="bg-white rounded-full px-2 py-1 text-sm font-medium flex items-center">
-                    {getCategoryIcon(item.category)} {item.category}
-                  </span>
-                </div>
-                {!item.inStock && (
-                  <div className="absolute top-2 right-2">
-                    <span className="bg-red-500 text-white rounded-full px-2 py-1 text-sm font-medium">
-                      Out of Stock
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">{item.name}</h3>
-                <p className="text-gray-600 mb-4">{item.description}</p>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-green-600">${item.price}</span>
-                  <button
-                    onClick={() => addToCart(item)}
-                    disabled={!item.inStock}
-                    className={`px-4 py-2 rounded-lg font-semibold transition duration-300 ${
-                      item.inStock
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    {item.inStock ? 'Add to Cart' : 'Out of Stock'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Features */}
-        <div className="mt-16 bg-white rounded-lg p-8 shadow-md">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">Why Choose Our Essentials?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🏆</span>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Premium Quality</h3>
-              <p className="text-gray-600">Only the best products for your beloved pets</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🚚</span>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Fast Delivery</h3>
-              <p className="text-gray-600">Quick delivery to keep your pets happy</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💰</span>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Best Prices</h3>
-              <p className="text-gray-600">Competitive pricing on all essentials</p>
-            </div>
-          </div>
-        </div>
+        </Container>
       </div>
+
+      {/* Category sub-filter */}
+      <Container>
+        <AnimatePresence>
+          {!loading && categories.length > 2 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: EASE }}
+              className="overflow-hidden"
+            >
+              <div className="flex items-center gap-2 pt-6 overflow-x-auto no-scrollbar">
+                {categories.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCategory(c)}
+                    className={`shrink-0 px-4 py-2 rounded-full text-sm border transition-colors duration-200
+                      ${category === c
+                        ? 'border-blush-300 bg-blush-50 text-blush-600 font-medium'
+                        : 'border-hairline text-ink-soft hover:border-blush-200 hover:text-ink'}`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Container>
+
+      {/* Grid */}
+      <Container className="pt-10">
+        <div className="flex items-center justify-between mb-8">
+          <p className="text-sm text-ink-soft">
+            {loading ? 'Loading…' : `${visible.length} ${visible.length === 1 ? 'item' : 'items'}`}
+          </p>
+          {category !== 'All' && !loading && (
+            <button
+              onClick={() => setCategory('All')}
+              className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink transition-colors"
+            >
+              <RotateCcw size={14} />
+              Reset
+            </button>
+          )}
+        </div>
+
+        {loading ? (
+          <SkeletonGrid count={8} />
+        ) : error ? (
+          <EmptyState
+            tone="error"
+            icon={AlertCircle}
+            title="Something went wrong"
+            body={error}
+            actionLabel="Try again"
+            onAction={() => setPetType((p) => p)}
+          />
+        ) : visible.length === 0 ? (
+          <EmptyState
+            icon={PackageX}
+            title="Nothing in this category yet"
+            body="Try another category or pet type."
+          />
+        ) : (
+          <motion.div
+            key={`${petType}-${category}`}
+            variants={stagger(0, 0.06)}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-7"
+          >
+            <AnimatePresence mode="popLayout">
+              {visible.map((p) => (
+                <motion.div key={p._id || p.id} layout>
+                  <ProductCard product={p} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </Container>
+
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 };

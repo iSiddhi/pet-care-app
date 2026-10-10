@@ -1,124 +1,272 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  PawPrint, ShoppingBag, Scissors, Search, Stethoscope,
+  Images, Users, Menu, X, ChevronDown,
+} from 'lucide-react';
+import Container from './ui/Container';
+import AccountMenu from './AccountMenu';
+import CartDrawer from './CartDrawer';
+import { useCart } from '../context/CartContext';
+import { EASE } from './ui/motion';
+
+const services = [
+  { to: '/pet-services', label: 'Pet Services', desc: 'Browse pets by category', icon: PawPrint },
+  { to: '/essentials', label: 'Essentials', desc: 'Food, toys and supplies', icon: ShoppingBag },
+  { to: '/grooming', label: 'Grooming', desc: 'Book a trusted groomer', icon: Scissors },
+  { to: '/pet-finder', label: 'Pet Finder', desc: 'Match with your pet', icon: Search },
+  { to: '/disease-prediction', label: 'Health Check', desc: 'AI symptom guidance', icon: Stethoscope },
+];
+
+const links = [
+  { to: '/gallery', label: 'Gallery', icon: Images },
+  { to: '/team', label: 'Our Team', icon: Users },
+  { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
+];
 
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
-
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const location = useLocation();
+  const cart = useCart();
 
-  // Close dropdowns on route change
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-    setIsServicesDropdownOpen(false);
+    setMobileOpen(false);
+    setServicesOpen(false);
   }, [location.pathname]);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  // Navbar only grows a hairline + shadow once the page has moved
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  const toggleServicesDropdown = () => {
-    setIsServicesDropdownOpen(!isServicesDropdownOpen);
-  };
+  // Lock body scroll while the mobile drawer is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  const isActive = (to) => location.pathname === to;
+  const servicesActive = services.some((s) => isActive(s.to));
 
   return (
-    <nav className="sticky top-0 z-50 bg-lavender shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-gray-800 hover:text-gray-600">
-              🐾 Pet Care Hub
+    <>
+      <header
+        className={`sticky top-0 z-50 glass transition-all duration-300
+          ${scrolled ? 'border-b border-hairline shadow-soft' : 'border-b border-transparent'}`}
+      >
+        <Container>
+          <nav className="flex items-center justify-between h-[72px]">
+            {/* Wordmark */}
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+              <span className="grid place-items-center w-9 h-9 rounded-full bg-blush-100 text-blush-500 transition-colors group-hover:bg-blush-200">
+                <PawPrint size={18} strokeWidth={2.2} />
+              </span>
+              <span className="font-display text-lg font-semibold tracking-tight text-ink">
+                Pet Care Hub
+              </span>
             </Link>
-          </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              <Link to="/" className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
-                Home
-              </Link>
+            {/* Desktop nav */}
+            <div className="hidden lg:flex items-center gap-1">
+              <NavItem to="/" active={isActive('/')}>Home</NavItem>
 
-              {/* Services Dropdown */}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
                 <button
-                  onClick={toggleServicesDropdown}
-                  className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
+                  onClick={() => setServicesOpen((v) => !v)}
+                  className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium
+                    transition-colors duration-200
+                    ${servicesActive ? 'text-ink bg-blush-50' : 'text-ink-soft hover:text-ink hover:bg-mist'}`}
                 >
                   Services
-                  <svg className="ml-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <motion.span animate={{ rotate: servicesOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={15} strokeWidth={2.2} />
+                  </motion.span>
                 </button>
 
-                {isServicesDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50">
-                    <div className="py-1">
-                      <Link to="/pet-services" onClick={() => setIsServicesDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🐾 Pet Services</Link>
-                      <Link to="/essentials" onClick={() => setIsServicesDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🛒 Essentials</Link>
-                      <Link to="/grooming" onClick={() => setIsServicesDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">✂️ Grooming</Link>
-                      <Link to="/pet-finder" onClick={() => setIsServicesDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🔍 Pet Finder</Link>
-                      <Link to="/disease-prediction" onClick={() => setIsServicesDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🏥 Health Check</Link>
-                    </div>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {servicesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.18, ease: EASE }}
+                      className="absolute left-1/2 -translate-x-1/2 top-full pt-3 w-[22rem]"
+                    >
+                      <div className="rounded-3xl bg-cream border border-hairline shadow-lift p-2 overflow-hidden">
+                        {services.map(({ to, label, desc, icon: Icon }) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            className={`flex items-start gap-3 p-3 rounded-2xl transition-colors
+                              ${isActive(to) ? 'bg-blush-50' : 'hover:bg-mist'}`}
+                          >
+                            <span className="mt-0.5 grid place-items-center w-9 h-9 rounded-xl bg-blush-50 text-blush-500 shrink-0">
+                              <Icon size={17} strokeWidth={2} />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block text-sm font-medium text-ink">{label}</span>
+                              <span className="block text-xs text-ink-mute mt-0.5">{desc}</span>
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              <Link to="/gallery" className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
-                Gallery
-              </Link>
-              <Link to="/team" className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
-                Our Team
-              </Link>
-              <Link to="/about" className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
-                About
-              </Link>
-              <Link to="/contact" className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
-                Contact
-              </Link>
+              {links.map(({ to, label }) => (
+                <NavItem key={to} to={to} active={isActive(to)}>{label}</NavItem>
+              ))}
             </div>
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              onClick={toggleMobileMenu}
-              className="text-gray-800 hover:bg-purple-100 hover:text-purple-700 active:bg-purple-200 focus:ring-2 focus:ring-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
+            {/* Right side: bag + account */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCartOpen(true)}
+                className="relative grid place-items-center w-10 h-10 rounded-full text-ink hover:bg-mist transition-colors"
+                aria-label={`Open bag${cart.count ? ` (${cart.count} items)` : ''}`}
+              >
+                <ShoppingBag size={18} strokeWidth={1.9} />
+                <AnimatePresence>
+                  {cart.count > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className="absolute top-0.5 right-0.5 grid place-items-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-blush-400 text-white text-[0.62rem] font-bold tabular-nums"
+                    >
+                      {cart.count}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+
+              <div className="hidden lg:block">
+                <AccountMenu />
+              </div>
+
+              {/* Mobile toggle */}
+              <button
+                onClick={() => setMobileOpen((v) => !v)}
+                className="lg:hidden grid place-items-center w-10 h-10 rounded-full text-ink hover:bg-mist transition-colors"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
             >
-              <span className="sr-only">Open main menu</span>
-              <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden" id="mobile-menu">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">Home</Link>
-              <Link to="/pet-services" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">🐾 Pet Services</Link>
-              <Link to="/essentials" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">🛒 Essentials</Link>
-              <Link to="/grooming" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">✂️ Grooming</Link>
-              <Link to="/pet-finder" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">🔍 Pet Finder</Link>
-              <Link to="/disease-prediction" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">🏥 Health Check</Link>
-              <Link to="/gallery" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">📸 Gallery</Link>
-              <Link to="/team" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">👥 Our Team</Link>
-              <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">About</Link>
-              <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100">Contact</Link>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={mobileOpen ? 'close' : 'open'}
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
+                  transition={{ duration: 0.15 }}
+                >
+                    {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+                  </motion.span>
+                </AnimatePresence>
+              </button>
             </div>
-          </div>
+          </nav>
+        </Container>
+      </header>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="lg:hidden fixed inset-0 top-[72px] z-40 bg-ink/20 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25, ease: EASE }}
+              className="lg:hidden fixed top-[72px] inset-x-0 z-40 max-h-[calc(100vh-72px)] overflow-y-auto bg-cream border-b border-hairline"
+            >
+              <Container className="py-6">
+                <MobileLink to="/" icon={PawPrint} onClick={() => setMobileOpen(false)}>Home</MobileLink>
+
+                <p className="px-3 pt-6 pb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  Services
+                </p>
+                {services.map(({ to, label, icon: Icon }) => (
+                  <MobileLink key={to} to={to} icon={Icon} onClick={() => setMobileOpen(false)}>
+                    {label}
+                  </MobileLink>
+                ))}
+
+                <p className="px-3 pt-6 pb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink-mute">
+                  More
+                </p>
+                {links.map(({ to, label, icon: Icon }) => (
+                  <MobileLink key={to} to={to} icon={Icon} onClick={() => setMobileOpen(false)}>
+                    {label}
+                  </MobileLink>
+                ))}
+
+                <div className="mt-6 pt-6 border-t border-hairline">
+                  <AccountMenu />
+                </div>
+
+                <Link
+                  to="/pet-finder"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-4 flex items-center justify-center gap-2 w-full px-5 py-3.5 rounded-full bg-ink text-cream text-sm font-medium"
+                >
+                  <Search size={16} strokeWidth={2.2} />
+                  Find a pet
+                </Link>
+              </Container>
+            </motion.div>
+          </>
         )}
-      </div>
-    </nav>
+      </AnimatePresence>
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+    </>
   );
 };
+
+const NavItem = ({ to, active, children }) => (
+  <Link
+    to={to}
+    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200
+      ${active ? 'text-ink bg-blush-50' : 'text-ink-soft hover:text-ink hover:bg-mist'}`}
+  >
+    {children}
+  </Link>
+);
+
+const MobileLink = ({ to, icon: Icon, children, onClick }) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className="flex items-center gap-3 px-3 py-3 rounded-2xl text-ink hover:bg-mist transition-colors"
+  >
+    {Icon && (
+      <span className="grid place-items-center w-9 h-9 rounded-xl bg-blush-50 text-blush-500">
+        <Icon size={17} strokeWidth={2} />
+      </span>
+    )}
+    <span className="text-[0.95rem] font-medium">{children}</span>
+  </Link>
+);
 
 export default Navbar;

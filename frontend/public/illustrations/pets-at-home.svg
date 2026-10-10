@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="A dog and a cat resting together at home">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#FDF2F5"/>
+      <stop offset="55%" stop-color="#F7F4FB"/>
+      <stop offset="100%" stop-color="#F1F9F6"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#F7CCD8" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="#F7CCD8" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FDF2F5" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dogCoat" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#E3C3B2"/>
+      <stop offset="100%" stop-color="#D2A894"/>
+    </linearGradient>
+    <linearGradient id="catCoat" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#D4BEEA"/>
+      <stop offset="100%" stop-color="#BFA3DC"/>
+    </linearGradient>
+    <linearGradient id="rug" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#DEF1E9"/>
+      <stop offset="100%" stop-color="#BFE3D5"/>
+    </linearGradient>
+    <clipPath id="frame"><rect width="800" height="600" rx="36"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="800" height="600" fill="url(#sky)"/>
+
+    <!-- window light -->
+    <circle cx="624" cy="150" r="130" fill="url(#sun)"/>
+    <circle cx="624" cy="150" r="58" fill="#F7CCD8" opacity="0.5"/>
+    <path d="M520 254 L728 254 L792 420 L456 420 Z" fill="#FEFCFB" opacity="0.4"/>
+
+    <!-- back wall arches -->
+    <path d="M96 420 L96 236 a56 56 0 0 1 112 0 L208 420 Z" fill="#EFE8F6" opacity="0.85"/>
+    <path d="M232 420 L232 272 a40 40 0 0 1 80 0 L312 420 Z" fill="#FBE4EA" opacity="0.7"/>
+
+    <!-- floor -->
+    <rect x="0" y="420" width="800" height="180" fill="#FBF6F4"/>
+    <ellipse cx="400" cy="492" rx="320" ry="62" fill="url(#rug)" opacity="0.75"/>
+    <ellipse cx="400" cy="492" rx="248" ry="44" fill="#FEFCFB" opacity="0.45"/>
+
+    <!-- plant, left -->
+    <g>
+      <path d="M150 400 q-44 -60 -14 -116 q34 42 14 116 Z" fill="#92CEB7"/>
+      <path d="M150 400 q46 -52 22 -112 q-40 46 -22 112 Z" fill="#BFE3D5"/>
+      <path d="M150 400 q-62 -22 -62 -72 q50 18 62 72 Z" fill="#DEF1E9"/>
+      <path d="M118 400 h64 l-9 58 a12 12 0 0 1 -12 11 h-22 a12 12 0 0 1 -12 -11 Z" fill="#E3C3B2"/>
+      <rect x="114" y="392" width="72" height="16" rx="8" fill="#D2A894"/>
+    </g>
+
+    <!-- dog -->
+    <g>
+      <ellipse cx="368" cy="470" rx="104" ry="16" fill="#1F1A1C" opacity="0.06"/>
+      <path d="M452 452 q52 -10 56 -36 q4 -22 -18 -20 q-20 2 -22 26 Z" fill="url(#dogCoat)"/>
+      <ellipse cx="372" cy="396" rx="92" ry="66" fill="url(#dogCoat)"/>
+      <ellipse cx="344" cy="414" rx="58" ry="44" fill="#F0DCD2" opacity="0.85"/>
+      <rect x="302" y="430" width="30" height="36" rx="15" fill="#D2A894"/>
+      <rect x="376" y="430" width="30" height="36" rx="15" fill="#D2A894"/>
+      <circle cx="292" cy="320" r="64" fill="url(#dogCoat)"/>
+      <path d="M244 282 q-34 -42 -12 -70 q30 -4 44 44 Z" fill="#C79C87"/>
+      <path d="M340 282 q34 -42 12 -70 q-30 -4 -44 44 Z" fill="#C79C87"/>
+      <ellipse cx="268" cy="352" rx="42" ry="30" fill="#F6E7DF"/>
+      <ellipse cx="256" cy="340" rx="11" ry="9" fill="#1F1A1C"/>
+      <path d="M248 360 q10 10 20 0" stroke="#1F1A1C" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <circle cx="272" cy="306" r="7" fill="#1F1A1C"/>
+      <circle cx="274.5" cy="303.5" r="2.4" fill="#FEFCFB"/>
+      <circle cx="318" cy="306" r="7" fill="#1F1A1C"/>
+      <circle cx="320.5" cy="303.5" r="2.4" fill="#FEFCFB"/>
+      <path d="M248 276 q14 -8 28 -2" stroke="#1F1A1C" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35"/>
+      <path d="M310 274 q14 -6 28 2" stroke="#1F1A1C" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35"/>
+      <path d="M250 372 q42 22 84 -4 l6 14 q-48 28 -96 4 Z" fill="#E57E9D"/>
+      <circle cx="290" cy="398" r="10" fill="#F7CCD8" stroke="#E57E9D" stroke-width="3"/>
+    </g>
+
+    <!-- cat -->
+    <g>
+      <ellipse cx="556" cy="470" rx="68" ry="12" fill="#1F1A1C" opacity="0.06"/>
+      <path d="M604 462 q54 4 62 -26 q6 -22 -16 -24 q-22 -2 -26 24 q-4 18 -20 26 Z" fill="url(#catCoat)"/>
+      <ellipse cx="556" cy="424" rx="62" ry="46" fill="url(#catCoat)"/>
+      <ellipse cx="540" cy="436" rx="38" ry="28" fill="#EFE8F6" opacity="0.9"/>
+      <circle cx="534" cy="362" r="44" fill="url(#catCoat)"/>
+      <path d="M500 334 l-6 -42 l38 22 Z" fill="#BFA3DC"/>
+      <path d="M568 334 l6 -42 l-38 22 Z" fill="#BFA3DC"/>
+      <path d="M503 332 l-3 -24 l21 13 Z" fill="#F7CCD8"/>
+      <path d="M565 332 l3 -24 l-21 13 Z" fill="#F7CCD8"/>
+      <ellipse cx="534" cy="378" rx="26" ry="18" fill="#F3EDFA"/>
+      <path d="M516 356 q8 -6 16 0" stroke="#1F1A1C" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <path d="M538 356 q8 -6 16 0" stroke="#1F1A1C" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <path d="M528 374 l6 6 l6 -6 Z" fill="#E57E9D"/>
+      <path d="M534 380 q-8 8 -16 2 M534 380 q8 8 16 2" stroke="#1F1A1C" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.55"/>
+      <g stroke="#1F1A1C" stroke-width="2" stroke-linecap="round" opacity="0.3">
+        <path d="M504 372 h-30 M504 380 h-28 M564 372 h30 M564 380 h28"/>
+      </g>
+    </g>
+
+    <!-- bowl -->
+    <g>
+      <path d="M646 448 h78 l-10 30 a14 14 0 0 1 -13 10 h-32 a14 14 0 0 1 -13 -10 Z" fill="#E57E9D"/>
+      <ellipse cx="685" cy="448" rx="39" ry="10" fill="#F0A9BE"/>
+      <ellipse cx="685" cy="448" rx="27" ry="6" fill="#D45E82" opacity="0.5"/>
+    </g>
+
+    <!-- hearts -->
+    <g opacity="0.55">
+      <path d="M430 196 a13 13 0 0 1 22 -9 a13 13 0 0 1 22 9 q0 18 -22 32 q-22 -14 -22 -32 Z" fill="#F7CCD8"/>
+      <path d="M190 172 a8 8 0 0 1 14 -6 a8 8 0 0 1 14 6 q0 11 -14 20 q-14 -9 -14 -20 Z" fill="#E0D3EE"/>
+    </g>
+  </g>
+</svg>
