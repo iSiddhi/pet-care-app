@@ -59,7 +59,7 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 glass transition-all duration-300
+        className={`sticky top-0 z-50 glass-bar transition-all duration-300
           ${scrolled ? 'border-b border-hairline shadow-soft' : 'border-b border-transparent'}`}
       >
         <Container>
