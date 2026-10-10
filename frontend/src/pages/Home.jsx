@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowRight, Minus, Plus,
   PawPrint, Cat, Rabbit, Bird, Fish, Turtle,
+  ShoppingBag, Scissors, Stethoscope,
 } from 'lucide-react';
 
 import Container from '../components/ui/Container';
@@ -12,7 +13,7 @@ import SectionHeading from '../components/ui/SectionHeading';
 import PetCard from '../components/PetCard';
 import ChatWidget from '../components/ChatWidget';
 import { CardSkeleton } from '../components/ui/Skeleton';
-import { fadeUp, stagger, EASE } from '../components/ui/motion';
+import { EASE } from '../components/ui/motion';
 import { apiService } from '../services/api';
 
 const CATEGORIES = [
@@ -58,7 +59,6 @@ const FAQS = [
 
 const Home = () => {
   const [featured, setFeatured] = useState([]);
-  const [counts, setCounts] = useState(null);
   const [categoryStats, setCategoryStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState(0);
@@ -67,34 +67,24 @@ const Home = () => {
   useEffect(() => {
     let alive = true;
 
-    // One pass over the catalogue gives the fact strip, the category counts
-    // and the featured dogs, so the page makes three requests instead of five.
-    Promise.allSettled([
-      apiService.getPetsByType(),
-      apiService.getBreedsByPet(),
-      apiService.getGroomers(),
-    ])
-      .then(([pets, breeds, groomers]) => {
+    // One pass over the catalogue covers both the featured dogs and the
+    // per-category counts, so the page makes a single request.
+    apiService
+      .getPetsByType()
+      .then((res) => {
         if (!alive) return;
+        const all = res.pets || [];
 
-        const all = pets.status === 'fulfilled' ? pets.value.pets || [] : [];
         setFeatured(all.filter((p) => p.type === 'Dog').slice(0, 3));
-
         setCategoryStats(
-          CATEGORY_ORDER.map((name) => {
-            const group = all.filter((p) => p.type === name);
-            return {
-              name,
-              count: group.length,
-              from: group.length ? Math.min(...group.map((p) => p.price)) : null,
-            };
-          })
+          CATEGORY_ORDER.map((name) => ({
+            name,
+            count: all.filter((p) => p.type === name).length,
+          }))
         );
-
-        setCounts({
-          breeds: breeds.status === 'fulfilled' ? (breeds.value.breeds || []).length : null,
-          groomers: groomers.status === 'fulfilled' ? (groomers.value || []).length : null,
-        });
+      })
+      .catch(() => {
+        if (alive) setFeatured([]);
       })
       .finally(() => { if (alive) setLoading(false); });
 
@@ -104,69 +94,51 @@ const Home = () => {
   return (
     <div>
       {/* ---------------- Hero ---------------- */}
-      {/* No stat grid here -- a row of label/number tiles reads exactly like
-          the category row further down. One inline line carries the same
-          facts and leaves the frame to the video. */}
-      <section className="relative overflow-hidden border-b border-hairline">
-        <div className="absolute inset-0">
-          {/* scale-105 hides the soft edge a blur leaves at the frame */}
+      {/* Soft lavender-to-pink wash: enough colour to be its own band,
+          light enough to keep ink text. */}
+      <section className="relative overflow-hidden min-h-[57vh] lg:min-h-[64vh] flex items-center">
+        {/* Masked rather than covered by a gradient: a cream overlay still
+            leaves the video's own hard edge. The mask dissolves the whole
+            layer — footage and wash together — into the page below. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            maskImage:
+              'linear-gradient(to bottom, #000 0%, #000 55%, rgba(0,0,0,0.6) 78%, transparent 100%)',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, #000 0%, #000 55%, rgba(0,0,0,0.6) 78%, transparent 100%)',
+          }}
+        >
           <video
             autoPlay loop muted playsInline
             poster="/home/hello.png"
-            className="w-full h-full object-cover scale-105 blur-[3px]"
+            className="w-full h-full object-cover scale-[1.03] blur-[2px]"
           >
             <source src="/home/HOMEE.mp4" type="video/mp4" />
           </video>
 
-          <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/80 to-transparent" />
-          <div className="absolute inset-0 bg-blush-50/25" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blush-200/75 via-blush-100/70 to-lilac-100/70" />
         </div>
 
-        <Container className="relative py-20 sm:py-28 lg:py-32">
-          <motion.div
-            variants={stagger(0, 0.06)}
-            initial="hidden"
-            animate="show"
-            className="max-w-xl"
-          >
-            <motion.h1
-              variants={fadeUp}
-              className="text-3xl sm:text-4xl leading-tight text-ink"
-            >
-              Find a pet, book a groomer,
-              <br className="hidden sm:block" /> order their food.
-            </motion.h1>
+        <Container className="relative w-full pt-20 pb-28 sm:pt-24 sm:pb-32 text-center">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl leading-tight text-ink">
+            Welcome to Pet Care Hub
+          </h1>
 
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 text-lg leading-relaxed text-ink-soft"
-            >
-              A pet care shop and clinic directory run out of Phagwara, Punjab.
-              Every listing is priced on the page, and grooming slots are open
-              seven days a week.
-            </motion.p>
+          <p className="mt-5 text-lg text-ink-soft leading-relaxed max-w-2xl mx-auto">
+            Find a pet, book a groomer and order their supplies — all priced on
+            the page, all in one place.
+          </p>
 
-            <motion.div variants={fadeUp} className="mt-7 flex flex-wrap gap-3">
-              <Button to="/pet-services" size="lg">
-                Browse pets
-                <ArrowRight size={16} strokeWidth={2.2} />
-              </Button>
-              <Button to="/grooming" variant="outline" size="lg">
-                Grooming prices
-              </Button>
-            </motion.div>
-
-            <motion.p
-              variants={fadeUp}
-              className="mt-6 text-sm text-ink-soft"
-            >
-              {counts?.breeds ?? 38} breeds listed
-              <Dot />
-              grooming from $15
-              <Dot />
-              free shipping over $75
-            </motion.p>
-          </motion.div>
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Button to="/pet-services" size="lg">
+              Explore Services
+              <ArrowRight size={16} strokeWidth={2.2} />
+            </Button>
+            <Button to="/grooming" variant="outline" size="lg">
+              Grooming prices
+            </Button>
+          </div>
         </Container>
       </section>
 
@@ -176,6 +148,7 @@ const Home = () => {
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <SectionHeading
+              align="left"
               title="Browse by kind"
               subtitle="Filter by breed and budget on the next page."
             />
@@ -194,9 +167,9 @@ const Home = () => {
                 <Link
                   key={name}
                   to="/pet-services"
-                  className="group flex flex-col items-center justify-center gap-2.5 aspect-square rounded-xl border border-hairline bg-cream hover:border-blush-300 hover:bg-blush-50 transition-colors"
+                  className="group flex flex-col items-center justify-center gap-2.5 aspect-square rounded-xl border border-hairline bg-cream transition-shadow duration-200 hover:shadow-soft"
                 >
-                  <span className="grid place-items-center w-12 h-12 rounded-full bg-blush-50 text-blush-500 transition-colors group-hover:bg-cream">
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-mist text-ink-soft transition-colors group-hover:text-ink">
                     <Icon size={22} strokeWidth={1.8} />
                   </span>
                   <span className="text-sm font-medium text-ink">{name}</span>
@@ -217,7 +190,7 @@ const Home = () => {
             {/* Pets */}
             <div>
               <div className="flex items-end justify-between gap-4 mb-7">
-                <SectionHeading title="Dogs looking for a home" />
+                <SectionHeading align="left" title="Dogs looking for a home" />
                 <Link
                   to="/pet-services"
                   className="text-sm font-medium text-ink hover:text-blush-500 transition-colors shrink-0"
@@ -247,7 +220,7 @@ const Home = () => {
 
             {/* Price list — plain table, no cards */}
             <div>
-              <SectionHeading title="Grooming prices" className="mb-7" />
+              <SectionHeading align="left" title="Grooming prices" className="mb-7" />
 
               <table className="w-full text-sm">
                 <tbody>
@@ -277,36 +250,63 @@ const Home = () => {
       </section>
 
       {/* ---------------- What's here ---------------- */}
-      <section className="py-16 sm:py-20">
+      {/* Card grid on a tinted band — the FAQ below already uses the
+          heading-left / content-right split, so repeating it here made the
+          two sections read as one. */}
+      <section className="py-16 sm:py-20 bg-shell border-y border-hairline">
         <Container>
-          <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-20">
-            <SectionHeading
-              title="What you can do here"
-              subtitle="Four things, each on its own page."
-            />
+          <SectionHeading
+            title="What you can do here"
+            subtitle="Four things, each on its own page."
+            className="mb-10"
+          />
 
-            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8">
-              <Item
-                to="/pet-services"
-                title="Browse and filter pets"
-                body="Six categories, every listing priced and tagged with temperament. Filter by breed or budget."
-              />
-              <Item
-                to="/essentials"
-                title="Order supplies"
-                body="Food, bedding, toys, carriers and care kits. Stock status is shown per item, not guessed."
-              />
-              <Item
-                to="/grooming"
-                title="Book grooming"
-                body="Pick a groomer by speciality, then a slot. Taken slots are greyed out before you commit."
-              />
-              <Item
-                to="/disease-prediction"
-                title="Check symptoms"
-                body="Describe what you're seeing and get triage guidance against a reference of common conditions."
-              />
-            </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              {
+                to: '/pet-services',
+                icon: PawPrint,
+                title: 'Browse and filter pets',
+                body: 'Six categories, every listing priced and tagged with temperament.',
+              },
+              {
+                to: '/essentials',
+                icon: ShoppingBag,
+                title: 'Order supplies',
+                body: 'Food, bedding, toys, carriers and care kits, with stock shown per item.',
+              },
+              {
+                to: '/grooming',
+                icon: Scissors,
+                title: 'Book grooming',
+                body: 'Pick a groomer by speciality, then a slot. Taken slots are greyed out.',
+              },
+              {
+                to: '/disease-prediction',
+                icon: Stethoscope,
+                title: 'Check symptoms',
+                body: 'Describe what you are seeing and get guidance on what to look into.',
+              },
+            ].map(({ to, icon: Icon, title, body }) => (
+              <Link
+                key={to}
+                to={to}
+                className="group flex flex-col p-6 rounded-lg bg-cream border border-hairline shadow-soft transition-shadow duration-200 hover:shadow-lift"
+              >
+                <span className="grid place-items-center w-11 h-11 rounded-lg bg-blush-100 text-blush-600 mb-4">
+                  <Icon size={20} strokeWidth={1.9} />
+                </span>
+                <h3 className="text-[0.95rem] font-semibold text-ink">{title}</h3>
+                <p className="mt-2 text-sm text-ink-soft leading-relaxed">{body}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-blush-600">
+                  Open
+                  <ArrowRight
+                    size={14}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
+              </Link>
+            ))}
           </div>
         </Container>
       </section>
@@ -315,7 +315,7 @@ const Home = () => {
       <section className="py-16 sm:py-20 border-t border-hairline">
         <Container>
           <div className="grid lg:grid-cols-[1fr_1.6fr] gap-10 lg:gap-20">
-            <SectionHeading title="Questions people ask" />
+            <SectionHeading align="left" title="Questions people ask" />
 
             <div>
               {FAQS.map((f, i) => {
@@ -378,8 +378,6 @@ const Home = () => {
     </div>
   );
 };
-
-const Dot = () => <span className="mx-2 text-ink-mute">·</span>;
 
 const Item = ({ to, title, body }) => (
   <Link to={to} className="group block">

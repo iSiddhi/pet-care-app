@@ -1,7 +1,7 @@
 // Plain heading block. No eyebrow-by-default, no entrance animation --
 // repeating the same animated eyebrow + serif + subtitle five times down a
 // page is what makes a site feel generated.
-const SectionHeading = ({ eyebrow, title, subtitle, align = 'left', className = '' }) => (
+const SectionHeading = ({ eyebrow, title, subtitle, align = 'center', className = '' }) => (
   <div
     className={`max-w-2xl ${align === 'center' ? 'mx-auto text-center' : ''} ${className}`}
   >

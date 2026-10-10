@@ -49,7 +49,7 @@ const Grooming = () => {
   useEffect(load, []);
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-sage-50">
       <PageHeader
         eyebrow="Grooming"
         title="Grooming, priced before you book"
@@ -109,7 +109,7 @@ const Grooming = () => {
       </section>
 
       {/* Groomers — live from the API */}
-      <section id="groomers" className="py-16 bg-shell scroll-mt-24">
+      <section id="groomers" className="py-16 scroll-mt-24">
         <Container>
           <SectionHeading
             eyebrow="The team"
@@ -149,25 +149,27 @@ const Grooming = () => {
                 <motion.article
                   key={g._id || g.id}
                   variants={fadeUp}
-                  className="group rounded-3xl bg-cream border border-hairline overflow-hidden hover:shadow-lift transition-shadow duration-300"
+                  className="h-full flex flex-col bg-cream rounded-lg border border-hairline shadow-soft overflow-hidden transition-shadow duration-200 hover:shadow-lift"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-mist">
+                  <div className="aspect-[4/3] bg-mist">
                     <img
                       src={g.avatar}
                       alt={g.name}
                       loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="w-full h-full object-cover"
                     />
-                    {g.rating && (
-                      <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full glass text-xs font-semibold text-ink">
-                        <Star size={12} className="fill-blush-400 text-blush-400" />
-                        {g.rating}
-                      </span>
-                    )}
                   </div>
 
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-ink">{g.name}</h3>
+                  <div className="flex-1 flex flex-col p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-base font-semibold text-ink">{g.name}</h3>
+                      {g.rating && (
+                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-ink shrink-0">
+                          <Star size={13} className="fill-blush-400 text-blush-400" />
+                          {g.rating}
+                        </span>
+                      )}
+                    </div>
                     {g.experienceYears > 0 && (
                       <p className="text-sm text-ink-mute mt-0.5">
                         {g.experienceYears} years experience

@@ -1,88 +1,58 @@
-import { motion } from 'framer-motion';
-import { Heart, ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
-import { fadeUp } from './ui/motion';
+import { Heart } from 'lucide-react';
 
-const PetCard = ({ pet, index = 0 }) => {
+/**
+ * A contained card: bordered surface, image on top, everything else in a
+ * padded body. Price and breed live in the body as text rather than floating
+ * on the photo — that overlay style is what made these read as a listings
+ * site rather than a shop.
+ */
+const PetCard = ({ pet }) => {
   const [saved, setSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const price =
-    typeof pet.price === 'number'
-      ? `$${pet.price.toLocaleString()}`
-      : pet.price;
+  const price = typeof pet.price === 'number' ? `$${pet.price.toLocaleString()}` : pet.price;
 
   return (
-    <motion.article
-      variants={fadeUp}
-      custom={index}
-      whileHover="hover"
-      initial="rest"
-      className="group relative"
-    >
-      {/* Image */}
-      <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-mist">
+    <article className="h-full flex flex-col bg-cream rounded-lg border border-hairline shadow-soft overflow-hidden transition-shadow duration-200 hover:shadow-lift">
+      <div className="relative aspect-[4/3] bg-mist">
         {!loaded && <div className="absolute inset-0 shimmer" />}
-
-        <motion.img
+        <img
           src={pet.image}
           alt={pet.name || pet.breed}
           loading="lazy"
           onLoad={() => setLoaded(true)}
-          variants={{ rest: { scale: 1 }, hover: { scale: 1.06 } }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="w-full h-full object-cover"
         />
 
-        {/* Readability scrim, only where text sits */}
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-ink/55 to-transparent" />
-
-        {/* Save */}
         <button
           onClick={(e) => { e.preventDefault(); setSaved((v) => !v); }}
-          className="absolute top-3.5 right-3.5 grid place-items-center w-9 h-9 rounded-full glass text-ink hover:scale-105 active:scale-95 transition-transform"
+          className="absolute top-3 right-3 grid place-items-center w-8 h-8 rounded-full bg-cream/90 border border-hairline text-ink-soft hover:text-blush-500 transition-colors"
           aria-label={saved ? 'Remove from saved' : 'Save this pet'}
         >
-          <Heart
-            size={16}
-            strokeWidth={2.2}
-            className={saved ? 'fill-blush-500 text-blush-500' : ''}
-          />
+          <Heart size={15} strokeWidth={2} className={saved ? 'fill-blush-500 text-blush-500' : ''} />
         </button>
-
-        {/* Breed chip */}
-        {pet.breed && (
-          <span className="absolute top-3.5 left-3.5 px-3 py-1.5 rounded-full glass text-[0.7rem] font-semibold tracking-wide text-ink">
-            {pet.breed}
-          </span>
-        )}
-
-        {/* Price */}
-        {price && (
-          <div className="absolute bottom-3.5 left-4 flex items-baseline gap-1 text-cream">
-            <span className="text-lg font-semibold">{price}</span>
-            {pet.age && <span className="text-xs opacity-80">· {pet.age}</span>}
-          </div>
-        )}
       </div>
 
-      {/* Body */}
-      <div className="pt-4 px-1">
+      <div className="flex-1 flex flex-col p-5">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-[1.05rem] font-semibold text-ink leading-snug">
+          <h3 className="text-base font-semibold text-ink leading-snug">
             {pet.name || pet.breed}
           </h3>
-          <motion.span
-            variants={{ rest: { opacity: 0, x: -4 }, hover: { opacity: 1, x: 0 } }}
-            transition={{ duration: 0.25 }}
-            className="mt-0.5 text-blush-500 shrink-0"
-          >
-            <ArrowUpRight size={18} strokeWidth={2.2} />
-          </motion.span>
+          {price && (
+            <span className="text-base font-semibold text-blush-600 tabular-nums whitespace-nowrap">
+              {price}
+            </span>
+          )}
         </div>
 
+        <p className="mt-1 text-sm text-ink-mute">
+          {pet.breed}
+          {pet.age && ` · ${pet.age}`}
+        </p>
+
         {pet.characteristics?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2.5">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {pet.characteristics.slice(0, 3).map((c) => (
               <span
                 key={c}
@@ -99,8 +69,12 @@ const PetCard = ({ pet, index = 0 }) => {
             {pet.description}
           </p>
         )}
+
+        <span className="mt-4 pt-4 border-t border-hairline text-sm font-medium text-blush-600">
+          View details →
+        </span>
       </div>
-    </motion.article>
+    </article>
   );
 };
 

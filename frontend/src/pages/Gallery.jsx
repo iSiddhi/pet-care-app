@@ -69,7 +69,7 @@ const Gallery = () => {
   const current = lightbox !== null ? visible[lightbox] : null;
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-shell">
       <PageHeader
         eyebrow="Gallery"
         title="Gallery"

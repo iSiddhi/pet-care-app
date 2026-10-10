@@ -65,7 +65,7 @@ const PetFinder = () => {
   const dirty = petType || breed || maxPrice !== MAX_PRICE;
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-blush-50">
       <PageHeader
         eyebrow="Pet Finder"
         title="Find a pet that fits"

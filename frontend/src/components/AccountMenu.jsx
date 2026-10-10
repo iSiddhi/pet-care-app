@@ -37,7 +37,7 @@ const AccountMenu = () => {
       <Link
         to="/login"
         state={{ from: location.pathname }}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-ink-soft hover:text-ink hover:bg-mist transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-ink-soft hover:text-ink hover:bg-cream/60 transition-colors"
       >
         <LogIn size={15} strokeWidth={2.1} />
         Sign in
@@ -49,11 +49,11 @@ const AccountMenu = () => {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full hover:bg-mist transition-colors"
+        className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full hover:bg-cream/60 transition-colors"
         aria-expanded={open}
         aria-label="Account menu"
       >
-        <span className="grid place-items-center w-8 h-8 rounded-full bg-blush-200 text-blush-600 text-xs font-bold">
+        <span className="grid place-items-center w-8 h-8 rounded-full bg-blush-500 text-white text-xs font-bold">
           {initials(user.name)}
         </span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>

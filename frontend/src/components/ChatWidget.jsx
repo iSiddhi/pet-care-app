@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, ArrowUp, Cat } from 'lucide-react';
+import { PawPrint, X, ArrowUp, Cat, Maximize2, Minimize2 } from 'lucide-react';
 import { apiService } from '../services/api';
+import { playMeow, primeMeow } from '../utils/meow';
 import { EASE } from './ui/motion';
 
 const now = () =>
@@ -17,16 +18,13 @@ const SUGGESTIONS = [
   'What should I feed a puppy?',
   'How often should I groom my cat?',
   'My dog keeps scratching',
+  'Do you have rabbits?',
 ];
 
 /**
  * On phones the software keyboard covers the bottom of the layout viewport
- * without resizing it, so a `fixed bottom-0` panel ends up behind the keys
- * and you cannot see what you are typing.
- *
- * visualViewport reports the part that is actually visible. The difference
- * between that and window.innerHeight is the keyboard, and we lift the
- * widget by exactly that much.
+ * without resizing it, so a `fixed bottom-0` panel ends up behind the keys.
+ * visualViewport reports what is actually visible; we lift by the difference.
  */
 const useKeyboardInset = () => {
   const [inset, setInset] = useState(0);
@@ -58,50 +56,82 @@ const useKeyboardInset = () => {
 
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState([GREETING]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hasUnseen, setHasUnseen] = useState(true);
+  const greeted = useRef(false);
+
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const { inset, viewportHeight } = useKeyboardInset();
 
-  // 27rem normally, but never taller than what the keyboard leaves visible
-  const panelHeight = Math.max(240, Math.min(432, viewportHeight - 132));
+  const panelHeight = expanded
+    ? Math.max(320, Math.min(680, viewportHeight - 112))
+    : Math.max(240, Math.min(432, viewportHeight - 132));
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [messages, loading, expanded]);
+
+  useEffect(() => { primeMeow(); }, []);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 250);
+    if (!open) return;
+    setHasUnseen(false);
+    setTimeout(() => inputRef.current?.focus(), 250);
   }, [open]);
 
-  const send = async (text) => {
-    const message = (text ?? draft).trim();
-    if (!message || loading) return;
-
-    setMessages((prev) => [...prev, { sender: 'user', text: message, time: now() }]);
-    setDraft('');
-    setLoading(true);
-
-    try {
-      // Hits /api/chatbot -- Gemini when a key is set, keyword replies otherwise
-      const history = messages.slice(-6).map((m) => ({ role: m.sender, text: m.text }));
-      const reply = await apiService.chatWithBot(message, history);
-      setMessages((prev) => [...prev, { sender: 'bot', text: reply, time: now() }]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: 'bot',
-          text: "I couldn't reach the server just now. Please try again, or contact us at support@petcarehub.com.",
-          time: now(),
-        },
-      ]);
-    } finally {
-      setLoading(false);
+  const toggle = () => {
+    // Only the first open says hello — after that it would just be noise
+    if (!open && !greeted.current) {
+      greeted.current = true;
+      playMeow();
     }
+    setOpen((v) => !v);
   };
+
+  // Esc closes, or un-maximises first
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (expanded) setExpanded(false);
+      else setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, expanded]);
+
+  const send = useCallback(
+    async (text) => {
+      const message = (text ?? draft).trim();
+      if (!message || loading) return;
+
+      setMessages((prev) => [...prev, { sender: 'user', text: message, time: now() }]);
+      setDraft('');
+      setLoading(true);
+
+      try {
+        const history = messages.slice(-6).map((m) => ({ role: m.sender, text: m.text }));
+        const reply = await apiService.chatWithBot(message, history);
+        setMessages((prev) => [...prev, { sender: 'bot', text: reply, time: now() }]);
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: "I couldn't reach the server just now. Please try again, or contact us at support@petcarehub.com.",
+            time: now(),
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [draft, loading, messages]
+  );
 
   return (
     <div
@@ -111,25 +141,42 @@ const ChatWidget = () => {
       <AnimatePresence>
         {open && (
           <motion.div
+            layout
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
-            transition={{ duration: 0.28, ease: EASE }}
+            transition={{ duration: 0.26, ease: EASE }}
             style={{ transformOrigin: 'bottom right', height: panelHeight }}
-            className="w-[min(22rem,calc(100vw-2.5rem))] rounded-3xl bg-cream border border-hairline shadow-lift overflow-hidden flex flex-col"
+            className={`rounded-2xl bg-cream border border-hairline shadow-lift overflow-hidden flex flex-col
+              ${expanded
+                ? 'w-[min(40rem,calc(100vw-2.5rem))]'
+                : 'w-[min(22rem,calc(100vw-2.5rem))]'}`}
           >
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-hairline bg-blush-50/60 shrink-0">
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-hairline bg-blush-100/70 shrink-0">
               <span className="grid place-items-center w-9 h-9 rounded-full bg-blush-200 text-blush-600">
                 <Cat size={16} strokeWidth={2.2} />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-ink leading-tight">Myaau</p>
-                <p className="text-xs text-ink-mute">Pet care assistant</p>
+                <p className="text-xs text-ink-mute flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sage-300" />
+                  Pet care assistant
+                </p>
               </div>
+
               <button
-                onClick={() => setOpen(false)}
-                className="grid place-items-center w-8 h-8 rounded-full text-ink-soft hover:bg-blush-100 transition-colors"
+                onClick={() => setExpanded((v) => !v)}
+                className="hidden sm:grid place-items-center w-8 h-8 rounded-full text-ink-soft hover:bg-cream transition-colors"
+                aria-label={expanded ? 'Shrink chat' : 'Expand chat'}
+                title={expanded ? 'Shrink' : 'Expand'}
+              >
+                {expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+              </button>
+
+              <button
+                onClick={() => { setOpen(false); setExpanded(false); }}
+                className="grid place-items-center w-8 h-8 rounded-full text-ink-soft hover:bg-cream transition-colors"
                 aria-label="Close chat"
               >
                 <X size={16} />
@@ -143,14 +190,14 @@ const ChatWidget = () => {
                   key={i}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, ease: EASE }}
+                  transition={{ duration: 0.22, ease: EASE }}
                   className={`flex ${m.sender === 'bot' ? 'justify-start' : 'justify-end'}`}
                 >
                   <div
                     className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${
                       m.sender === 'bot'
                         ? 'bg-mist text-ink rounded-2xl rounded-bl-md'
-                        : 'bg-ink text-cream rounded-2xl rounded-br-md'
+                        : 'bg-blush-500 text-white rounded-2xl rounded-br-md'
                     }`}
                   >
                     {m.text}
@@ -173,15 +220,16 @@ const ChatWidget = () => {
                 </div>
               )}
 
-              {messages.length === 1 && !loading && (
+              {/* Prompts stay available until the conversation gets going */}
+              {messages.length <= 3 && !loading && (
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {SUGGESTIONS.map((s) => (
+                  {SUGGESTIONS.map((q) => (
                     <button
-                      key={s}
-                      onClick={() => send(s)}
-                      className="text-xs px-3 py-1.5 rounded-full border border-hairline text-ink-soft hover:border-blush-300 hover:bg-blush-50 transition-colors"
+                      key={q}
+                      onClick={() => send(q)}
+                      className="text-xs px-3 py-1.5 rounded-full border border-hairline text-ink-soft hover:border-blush-300 hover:bg-blush-50 hover:text-blush-600 transition-colors"
                     >
-                      {s}
+                      {q}
                     </button>
                   ))}
                 </div>
@@ -205,7 +253,7 @@ const ChatWidget = () => {
                   onClick={() => send()}
                   disabled={!draft.trim() || loading}
                   whileTap={{ scale: 0.9 }}
-                  className="grid place-items-center w-8 h-8 rounded-full bg-ink text-cream disabled:opacity-30 disabled:pointer-events-none shrink-0"
+                  className="grid place-items-center w-8 h-8 rounded-full bg-blush-500 text-white disabled:opacity-30 disabled:pointer-events-none shrink-0"
                   aria-label="Send message"
                 >
                   <ArrowUp size={15} strokeWidth={2.5} />
@@ -220,25 +268,36 @@ const ChatWidget = () => {
       </AnimatePresence>
 
       {/* Launcher */}
-      <motion.button
-        onClick={() => setOpen((v) => !v)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="grid place-items-center w-14 h-14 rounded-full bg-ink text-cream shadow-lift"
-        aria-label={open ? 'Close chat' : 'Open chat'}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={open ? 'x' : 'chat'}
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.6 }}
-            transition={{ duration: 0.15 }}
-          >
-            {open ? <X size={21} /> : <MessageCircle size={21} />}
-          </motion.span>
-        </AnimatePresence>
-      </motion.button>
+        <motion.button
+          onClick={toggle}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="relative grid place-items-center w-14 h-14 rounded-full bg-blush-500 text-white shadow-lift"
+          aria-label={open ? 'Close chat' : 'Open chat'}
+        >
+          {/* One-time ring so the launcher is noticed without nagging */}
+          {!open && hasUnseen && (
+            <motion.span
+              initial={{ opacity: 0.5, scale: 1 }}
+              animate={{ opacity: 0, scale: 1.6 }}
+              transition={{ duration: 1.8, repeat: 3, ease: 'easeOut' }}
+              className="absolute inset-0 rounded-full bg-blush-400"
+            />
+          )}
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={open ? 'x' : 'paw'}
+              initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.6, rotate: 20 }}
+              transition={{ duration: 0.16 }}
+              className="relative"
+            >
+              {open ? <X size={21} /> : <PawPrint size={23} strokeWidth={2.1} />}
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
     </div>
   );
 };

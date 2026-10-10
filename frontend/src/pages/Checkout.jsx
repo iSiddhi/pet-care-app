@@ -81,7 +81,7 @@ const Checkout = () => {
   /* ---------- payment ---------- */
   if (stage === 'pay' && created) {
     return (
-      <div className="min-h-screen pb-24">
+      <div className="min-h-screen pb-24 bg-shell">
         <PageHeader
           eyebrow="Payment"
           title="Pay with UPI"
@@ -118,7 +118,7 @@ const Checkout = () => {
 
   /* ---------- address ---------- */
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-shell">
       <PageHeader eyebrow="Checkout" title="Where should it go?" />
 
       <Container className="pt-10">
@@ -201,7 +201,7 @@ const Checkout = () => {
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            className="rounded-2xl bg-shell p-7 lg:sticky lg:top-28"
+            className="rounded-2xl bg-cream border border-hairline p-7 lg:sticky lg:top-28"
           >
             <h2 className="text-lg font-semibold text-ink mb-6">
               Order summary
