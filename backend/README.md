@@ -71,3 +71,61 @@ Protected routes take `Authorization: Bearer <token>`.
 - AI routes are rate-limited to 20 requests/minute per IP.
 - `/api/groomers`, `/api/team` and `/api/gallery` return bare arrays because
   that is what the existing frontend `api.js` consumed.
+
+## Deploying
+
+### API on Render
+
+New -> Web Service -> connect this repo, then:
+
+| Setting | Value |
+|---|---|
+| Root Directory | `backend` |
+| Runtime | Node |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+| Health Check Path | `/api/health` |
+
+Add these environment variables in the Render dashboard:
+
+```
+NODE_ENV=production
+MONGODB_URI=<your Atlas string>
+JWT_SECRET=<long random string>
+JWT_EXPIRES_IN=7d
+CLIENT_URLS=https://your-app.vercel.app
+GEMINI_API_KEY=<your key>
+GEMINI_MODEL=gemini-3.5-flash-lite
+MERCHANT_VPA=<your UPI id>
+MERCHANT_NAME=Pet Care Hub
+USD_TO_INR=88
+```
+
+Do **not** set `PORT` — Render provides it and `server.js` reads it.
+
+`CLIENT_URLS` must exactly match the browser origin, including `https://`
+and no trailing slash, or every request fails CORS.
+
+In Atlas, Network Access must allow `0.0.0.0/0`. Render's free tier has no
+fixed outbound IP, so there is nothing narrower to allow-list.
+
+After the first deploy, seed the database once from your own machine with
+`MONGODB_URI` pointing at the same cluster:
+
+```bash
+npm run seed
+```
+
+The free plan sleeps after 15 minutes idle, so the first request after a
+quiet spell takes ~50 seconds to wake. That is the plan, not a bug.
+
+### Frontend on Vercel
+
+Root Directory `frontend`. Set one environment variable:
+
+```
+VITE_API_URL=https://your-api.onrender.com/api
+```
+
+Vite inlines env vars at build time, so changing this needs a redeploy,
+not just a restart.

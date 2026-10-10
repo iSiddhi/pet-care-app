@@ -154,7 +154,12 @@ temp/
 *.hdf5
 data/
 datasets/
+# "models/" below came from a Python/ML template -- it was silently
+# excluding backend/models/, our Mongoose schemas. Keep the rule for any
+# ML weights, but let the backend models through.
 models/
+!backend/models/
+!backend/models/**
 checkpoints/
 
 # Jupyter Notebook

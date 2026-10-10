@@ -1,0 +1,36 @@
+# Render blueprint for the API only. The frontend lives on Vercel.
+# Render -> New -> Blueprint, point it at this repo, or configure a Web
+# Service by hand with the same values.
+services:
+  - type: web
+    name: pet-care-api
+    runtime: node
+    plan: free
+    region: singapore          # closest to India; change if you prefer
+    rootDir: backend           # IMPORTANT: only this folder is the service
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render injects PORT itself; server.js already reads it.
+      - key: MONGODB_URI
+        sync: false            # set in the dashboard, never in this file
+      - key: JWT_SECRET
+        generateValue: true    # Render makes a strong one on first deploy
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URLS
+        sync: false            # your Vercel URL(s), comma separated
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: MERCHANT_VPA
+        sync: false
+      - key: MERCHANT_NAME
+        value: Pet Care Hub
+      - key: USD_TO_INR
+        value: "88"
