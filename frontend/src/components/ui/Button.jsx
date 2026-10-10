@@ -13,6 +13,9 @@ const variants = {
   soft: 'bg-blush-50 text-blush-600 hover:bg-blush-100',
   outline: 'border border-hairline bg-cream/80 text-ink hover:border-blush-300 hover:bg-blush-50',
   ghost: 'text-ink-soft hover:text-ink hover:bg-mist',
+  // For use on dark or saturated grounds, e.g. the hero
+  light: 'bg-cream text-blush-600 hover:bg-white shadow-soft',
+  outlineLight: 'border border-cream/50 text-cream hover:bg-cream/15',
 };
 
 // Hoisted: motion(Link) inside render would remount the node every pass

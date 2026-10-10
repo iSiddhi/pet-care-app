@@ -83,7 +83,7 @@ const Account = () => {
   };
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-shell">
       <PageHeader
         eyebrow="Your account"
         title={`Hello, ${user?.name?.split(' ')[0] || 'there'}`}
@@ -267,7 +267,7 @@ const Account = () => {
               )
             ) : (
               <motion.div variants={stagger(0, 0.08)} initial="hidden" animate="show" className="max-w-lg">
-                <motion.div variants={fadeUp} className="rounded-2xl bg-shell p-8">
+                <motion.div variants={fadeUp} className="rounded-2xl bg-cream border border-hairline p-8">
                   <div className="flex items-center gap-4 mb-8">
                     <span className="grid place-items-center w-14 h-14 rounded-2xl bg-blush-200 text-blush-600 font-bold">
                       {user?.name?.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}

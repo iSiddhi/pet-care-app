@@ -23,7 +23,7 @@ const helpsWith = [
 ];
 
 const Consultant = () => (
-  <div className="min-h-screen pb-24">
+  <div className="min-h-screen pb-24 bg-shell">
     <PageHeader
       eyebrow="Consultation"
       title="Free consultation"
@@ -77,7 +77,7 @@ const Consultant = () => (
 
         {/* Details */}
         <div>
-          <motion.div variants={fadeUp} className="rounded-2xl bg-shell p-8 mb-8">
+          <motion.div variants={fadeUp} className="rounded-2xl bg-cream border border-hairline p-8 mb-8">
             <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-600 mb-6">
               <MessageCircle size={21} strokeWidth={1.9} />
             </span>

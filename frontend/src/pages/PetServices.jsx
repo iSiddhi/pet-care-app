@@ -81,7 +81,7 @@ const PetServices = () => {
   }, [pets, breed, sort, maxPrice]);
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-blush-50">
       <PageHeader
         eyebrow="Pet Services"
         title="Pets currently listed"

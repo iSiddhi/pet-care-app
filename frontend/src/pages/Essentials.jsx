@@ -65,7 +65,7 @@ const Essentials = () => {
   );
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-lilac-50">
       <PageHeader
         eyebrow="Essentials"
         title="Pet essentials"

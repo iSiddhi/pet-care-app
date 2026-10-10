@@ -59,14 +59,14 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 glass-bar transition-all duration-300
+        className={`sticky top-0 z-50 nav-bar transition-all duration-300
           ${scrolled ? 'border-b border-hairline shadow-soft' : 'border-b border-transparent'}`}
       >
         <Container>
           <nav className="flex items-center justify-between h-[72px]">
             {/* Wordmark */}
             <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-              <span className="grid place-items-center w-9 h-9 rounded-full bg-blush-100 text-blush-500 transition-colors group-hover:bg-blush-200">
+              <span className="grid place-items-center w-9 h-9 rounded-full bg-cream text-blush-500 transition-colors group-hover:bg-blush-50">
                 <PawPrint size={18} strokeWidth={2.2} />
               </span>
               <span className="text-base font-semibold tracking-tight text-ink">
@@ -87,7 +87,7 @@ const Navbar = () => {
                   onClick={() => setServicesOpen((v) => !v)}
                   className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium
                     transition-colors duration-200
-                    ${servicesActive ? 'text-ink bg-blush-50' : 'text-ink-soft hover:text-ink hover:bg-mist'}`}
+                    ${servicesActive ? 'text-ink bg-cream' : 'text-ink-soft hover:text-ink hover:bg-cream/60'}`}
                 >
                   Services
                   <motion.span animate={{ rotate: servicesOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -248,7 +248,7 @@ const NavItem = ({ to, active, children }) => (
   <Link
     to={to}
     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200
-      ${active ? 'text-ink bg-blush-50' : 'text-ink-soft hover:text-ink hover:bg-mist'}`}
+      ${active ? 'text-ink bg-cream' : 'text-ink-soft hover:text-ink hover:bg-cream/60'}`}
   >
     {children}
   </Link>

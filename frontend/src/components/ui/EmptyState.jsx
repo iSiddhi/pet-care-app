@@ -13,7 +13,7 @@ const EmptyState = ({
   <div
     className={`rounded-3xl py-20 px-6 text-center ${
       tone === 'error'
-        ? 'border border-hairline bg-shell'
+        ? 'border border-hairline bg-cream'
         : 'border border-dashed border-hairline'
     }`}
   >

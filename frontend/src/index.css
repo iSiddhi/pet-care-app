@@ -6,58 +6,65 @@
    keep it from reading as childish.
 ----------------------------------------------------------------*/
 @theme {
+  /* ---------------------------------------------------------------
+     Palette carried over from the original build: lavender #E6D4EC,
+     mint #B2E5D5 and Tailwind's purple/pink pastels. The scales below
+     extend those three anchors so components have light surfaces and
+     dark-enough text tones to work with.
+  ----------------------------------------------------------------*/
+
   /* Surfaces */
-  --color-cream: #FEFCFB;
-  --color-shell: #FBF6F4;
-  --color-mist: #F6F1F4;
+  --color-cream: #FDFBFE;
+  --color-shell: #F7F2F9;
+  --color-mist: #F2ECF5;
 
-  /* Blush — primary */
-  --color-blush-50:  #FDF2F5;
-  --color-blush-100: #FBE4EA;
-  --color-blush-200: #F7CCD8;
-  --color-blush-300: #F0A9BE;
-  --color-blush-400: #E57E9D;
-  --color-blush-500: #D45E82;
-  --color-blush-600: #B84A6B;
+  /* Primary — purple, led by the original purple-600 accent */
+  --color-blush-50:  #FAF4FD;
+  --color-blush-100: #F3E8FF;
+  --color-blush-200: #E6D4EC;
+  --color-blush-300: #D8B4FE;
+  --color-blush-400: #B57BE8;
+  --color-blush-500: #9333EA;
+  --color-blush-600: #7E22CE;
 
-  /* Lavender — secondary */
-  --color-lilac-50:  #F7F4FB;
-  --color-lilac-100: #EFE8F6;
-  --color-lilac-200: #E0D3EE;
-  --color-lilac-300: #C9B2E0;
-  --color-lilac-400: #AC8ACE;
+  /* Secondary — pink */
+  --color-lilac-50:  #FDF2F8;
+  --color-lilac-100: #FCE7F3;
+  --color-lilac-200: #FBCFE8;
+  --color-lilac-300: #F9A8D4;
+  --color-lilac-400: #DB2777;
 
-  /* Mint — tertiary */
-  --color-sage-50:  #F1F9F6;
-  --color-sage-100: #DEF1E9;
-  --color-sage-200: #BFE3D5;
-  --color-sage-300: #92CEB7;
+  /* Tertiary — mint */
+  --color-sage-50:  #EFFAF6;
+  --color-sage-100: #D9F2E8;
+  --color-sage-200: #B2E5D5;
+  --color-sage-300: #4F9E82;
 
   /* Ink */
-  --color-ink:      #1F1A1C;
-  --color-ink-soft: #5C5156;
-  --color-ink-mute: #918288;
-  --color-hairline: #EDE4E7;
+  --color-ink:      #221C28;
+  --color-ink-soft: #5C5367;
+  --color-ink-mute: #8C8398;
+  --color-hairline: #EAE1EF;
 
-  /* Legacy aliases so older pages keep compiling */
-  --color-offwhite: #FEFCFB;
-  --color-lavender: #EFE8F6;
-  --color-green:    #DEF1E9;
+  /* Original names, kept so anything still using them stays correct */
+  --color-offwhite: #F5F5F5;
+  --color-lavender: #E6D4EC;
+  --color-green:    #B2E5D5;
 
-  /* Type -- one family. A serif display face reads as "designed",
-     which is the opposite of what we want here. */
+  /* Type */
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  /* Radii — large and soft, the single biggest "premium" lever */
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
-  --radius-3xl: 1.75rem;
+  /* Radii */
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.625rem;
+  --radius-2xl: 0.75rem;
+  --radius-3xl: 0.875rem;
 
-  /* Shadows — low opacity, warm tint, never grey */
-  --shadow-soft: 0 1px 2px rgb(31 26 28 / 0.04), 0 8px 24px -8px rgb(31 26 28 / 0.08);
-  --shadow-lift: 0 2px 4px rgb(31 26 28 / 0.04), 0 18px 40px -12px rgb(31 26 28 / 0.14);
-  --shadow-glow: 0 10px 40px -10px rgb(212 94 130 / 0.35);
+  /* Shadows — tinted with the ink colour so they sit in the palette */
+  --shadow-soft: 0 1px 2px rgb(34 28 40 / 0.04), 0 8px 24px -8px rgb(34 28 40 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(34 28 40 / 0.05), 0 18px 40px -12px rgb(34 28 40 / 0.14);
+  --shadow-glow: 0 10px 40px -10px rgb(147 51 234 / 0.3);
 }
 
 @layer base {
@@ -109,9 +116,23 @@
 
   /* Frosted layer used by overlay chips and buttons sitting on images */
   .glass {
-    background-color: rgb(254 252 251 / 0.72);
+    background-color: rgb(253 251 254 / 0.75);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  /* The navbar carries the original lavender so it reads as its own band
+     rather than blending into the page. */
+  .nav-bar {
+    background-color: var(--color-blush-200);
+  }
+
+  @media (min-width: 64rem) {
+    .nav-bar {
+      background-color: rgb(230 212 236 / 0.85);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+    }
   }
 
   /* Sticky bars (nav, filter rows) are solid on phones: backdrop-filter is
@@ -124,7 +145,7 @@
 
   @media (min-width: 64rem) {
     .glass-bar {
-      background-color: rgb(254 252 251 / 0.72);
+      background-color: rgb(253 251 254 / 0.75);
       backdrop-filter: blur(16px) saturate(140%);
       -webkit-backdrop-filter: blur(16px) saturate(140%);
     }

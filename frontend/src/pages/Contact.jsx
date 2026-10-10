@@ -83,7 +83,7 @@ const Contact = () => {
   }, [status]);
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-blush-50">
       <PageHeader
         eyebrow="Contact"
         title="Contact us"
@@ -94,7 +94,7 @@ const Contact = () => {
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-10 lg:gap-16 items-start">
           {/* Channels */}
           <motion.div variants={stagger(0, 0.08)} initial="hidden" animate="show">
-            <motion.div variants={fadeUp} className="rounded-2xl bg-shell p-8">
+            <motion.div variants={fadeUp} className="rounded-2xl bg-cream border border-hairline p-8">
               <h2 className="text-lg font-semibold text-ink mb-7">
                 Other ways to reach us
               </h2>

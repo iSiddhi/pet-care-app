@@ -37,7 +37,7 @@ const OurTeam = () => {
   useEffect(load, []);
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-lilac-50">
       <PageHeader
         eyebrow="Our Team"
         title="Who runs this"
@@ -78,33 +78,38 @@ const OurTeam = () => {
             className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl"
           >
             {team.map((m) => (
-              <motion.article key={m._id || m.id} variants={fadeUp} className="group">
-                <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-mist mb-5">
+              <motion.article
+                key={m._id || m.id}
+                variants={fadeUp}
+                className="h-full flex flex-col bg-cream rounded-lg border border-hairline shadow-soft overflow-hidden transition-shadow duration-200 hover:shadow-lift"
+              >
+                <div className="aspect-[4/3] bg-mist">
                   <img
                     src={m.avatar}
                     alt={m.name}
                     loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink/50 to-transparent" />
-                  <span className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full glass text-xs font-semibold text-ink">
-                    {m.role}
-                  </span>
                 </div>
 
-                <h3 className="text-lg font-semibold text-ink">{m.name}</h3>
-                {m.bio && (
-                  <p className="mt-2.5 text-sm text-ink-soft leading-relaxed">{m.bio}</p>
-                )}
-                {m.email && (
-                  <a
-                    href={`mailto:${m.email}`}
-                    className="inline-flex items-center gap-2 mt-4 text-sm text-ink-soft hover:text-blush-500 transition-colors"
-                  >
-                    <Mail size={14} strokeWidth={1.9} />
-                    {m.email}
-                  </a>
-                )}
+                <div className="flex-1 flex flex-col p-5">
+                  <h3 className="text-base font-semibold text-ink">{m.name}</h3>
+                  <p className="text-sm text-blush-600 font-medium mt-0.5">{m.role}</p>
+
+                  {m.bio && (
+                    <p className="mt-3 text-sm text-ink-soft leading-relaxed">{m.bio}</p>
+                  )}
+
+                  {m.email && (
+                    <a
+                      href={`mailto:${m.email}`}
+                      className="inline-flex items-center gap-2 mt-4 pt-4 border-t border-hairline text-sm text-ink-soft hover:text-blush-500 transition-colors"
+                    >
+                      <Mail size={14} strokeWidth={1.9} />
+                      <span className="truncate">{m.email}</span>
+                    </a>
+                  )}
+                </div>
               </motion.article>
             ))}
           </motion.div>
@@ -112,7 +117,7 @@ const OurTeam = () => {
       </Container>
 
       {/* Values */}
-      <section className="py-20 mt-16 bg-shell">
+      <section className="py-20 mt-16 border-t border-hairline">
         <Container>
           <SectionHeading
             eyebrow=""

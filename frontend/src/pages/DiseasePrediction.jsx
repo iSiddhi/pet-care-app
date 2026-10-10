@@ -76,7 +76,7 @@ const DiseasePrediction = () => {
   const SeverityIcon = tone.icon;
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-sage-50">
       <PageHeader
         eyebrow="Health Check"
         title="Symptom check"
@@ -188,7 +188,7 @@ const DiseasePrediction = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="rounded-2xl border border-hairline bg-shell p-8 space-y-4"
+                  className="rounded-2xl border border-hairline bg-cream p-8 space-y-4"
                 >
                   <div className="flex items-center gap-3 mb-6">
                     <motion.span
@@ -210,7 +210,7 @@ const DiseasePrediction = () => {
                   key="error"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-hairline bg-shell p-8 text-center"
+                  className="rounded-2xl border border-hairline bg-cream p-8 text-center"
                 >
                   <span className="inline-grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-500 mb-5">
                     <AlertCircle size={21} />

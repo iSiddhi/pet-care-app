@@ -42,7 +42,7 @@ const stats = [
 ];
 
 const About = () => (
-  <div className="min-h-screen pb-24">
+  <div className="min-h-screen pb-24 bg-blush-50">
     <PageHeader
       eyebrow="About"
       title="About Pet Care Hub"
@@ -135,7 +135,7 @@ const About = () => (
             <motion.div
               key={title}
               variants={fadeUp}
-              className="p-8 sm:p-10 rounded-2xl bg-shell border border-hairline"
+              className="p-8 sm:p-10 rounded-2xl bg-cream border border-hairline"
             >
               <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-600 mb-7">
                 <Icon size={21} strokeWidth={1.9} />
@@ -149,7 +149,7 @@ const About = () => (
     </section>
 
     {/* What we offer */}
-    <section className="py-20 bg-shell">
+    <section className="py-20">
       <Container>
         <SectionHeading
           eyebrow="What we offer"
