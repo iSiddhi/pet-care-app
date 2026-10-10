@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Stethoscope, Sparkles, ShieldAlert, ArrowRight,
+  Stethoscope, ShieldAlert, ArrowRight,
   RotateCcw, AlertCircle, CheckCircle2, Info,
 } from 'lucide-react';
 
@@ -79,11 +79,11 @@ const DiseasePrediction = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Health Check"
-        title="Describe what you're seeing"
-        subtitle="Our assistant reads the symptoms against a veterinary knowledge base and suggests what to look into next."
+        title="Symptom check"
+        subtitle="Describe the symptoms and we check them against a reference of 15 common conditions. This is triage guidance, not a diagnosis."
       />
 
-      <Container className="pt-4">
+      <Container className="pt-10">
         <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
           {/* Form */}
           <motion.form
@@ -91,7 +91,7 @@ const DiseasePrediction = () => {
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-6 sm:p-8 lg:sticky lg:top-28"
+            className="rounded-2xl bg-cream border border-hairline shadow-soft p-6 sm:p-8 lg:sticky lg:top-28"
           >
             <div className="flex items-center gap-2 mb-7">
               <Stethoscope size={17} className="text-blush-500" />
@@ -188,7 +188,7 @@ const DiseasePrediction = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="rounded-[2rem] border border-hairline bg-shell p-8 space-y-4"
+                  className="rounded-2xl border border-hairline bg-shell p-8 space-y-4"
                 >
                   <div className="flex items-center gap-3 mb-6">
                     <motion.span
@@ -196,7 +196,7 @@ const DiseasePrediction = () => {
                       transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                       className="text-blush-400"
                     >
-                      <Sparkles size={20} />
+                      <Stethoscope size={20} />
                     </motion.span>
                     <p className="text-sm text-ink-soft">Reading the symptoms…</p>
                   </div>
@@ -210,7 +210,7 @@ const DiseasePrediction = () => {
                   key="error"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-[2rem] border border-hairline bg-shell p-8 text-center"
+                  className="rounded-2xl border border-hairline bg-shell p-8 text-center"
                 >
                   <span className="inline-grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-500 mb-5">
                     <AlertCircle size={21} />
@@ -224,7 +224,7 @@ const DiseasePrediction = () => {
                   variants={stagger(0, 0.08)}
                   initial="hidden"
                   animate="show"
-                  className="rounded-[2rem] border border-hairline bg-cream shadow-soft overflow-hidden"
+                  className="rounded-2xl border border-hairline bg-cream shadow-soft overflow-hidden"
                 >
                   {/* Severity band */}
                   <motion.div variants={fadeUp} className={`${tone.bg} px-7 py-6`}>
@@ -236,7 +236,7 @@ const DiseasePrediction = () => {
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-mute mb-1.5">
                           Likely condition
                         </p>
-                        <h2 className="font-display text-2xl font-semibold text-ink leading-tight">
+                        <h2 className="text-xl font-semibold text-ink leading-tight">
                           {result.disease}
                         </h2>
                         <div className="flex flex-wrap items-center gap-2 mt-3">
@@ -314,7 +314,7 @@ const DiseasePrediction = () => {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: EASE }}
-                  className="rounded-[2rem] border border-dashed border-hairline py-20 px-6 text-center"
+                  className="rounded-2xl border border-dashed border-hairline py-20 px-6 text-center"
                 >
                   <span className="inline-grid place-items-center w-12 h-12 rounded-2xl bg-mist text-ink-mute mb-5">
                     <Stethoscope size={21} />

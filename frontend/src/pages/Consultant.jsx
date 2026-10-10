@@ -26,12 +26,12 @@ const Consultant = () => (
   <div className="min-h-screen pb-24">
     <PageHeader
       eyebrow="Consultation"
-      title="Talk to someone before you decide"
-      subtitle="A free, no-pressure chat about what would actually suit your home."
+      title="Free consultation"
+      subtitle="A 15 to 20 minute call with Adii Jain about what would suit your home. No charge."
       align="center"
     />
 
-    <Container className="pt-4">
+    <Container className="pt-10">
       <motion.div
         variants={stagger(0, 0.1)}
         initial="hidden"
@@ -40,7 +40,7 @@ const Consultant = () => (
       >
         {/* Portrait card */}
         <motion.div variants={fadeUp}>
-          <div className="rounded-[2rem] overflow-hidden bg-cream border border-hairline shadow-soft">
+          <div className="rounded-2xl overflow-hidden bg-cream border border-hairline shadow-soft">
             <div className="aspect-[4/5] overflow-hidden bg-mist">
               <img
                 src={consultant.image}
@@ -49,7 +49,7 @@ const Consultant = () => (
               />
             </div>
             <div className="p-7">
-              <h2 className="font-display text-2xl font-semibold text-ink">
+              <h2 className="text-xl font-semibold text-ink">
                 {consultant.name}
               </h2>
               <p className="text-blush-500 font-medium text-sm mt-1">{consultant.title}</p>
@@ -77,11 +77,11 @@ const Consultant = () => (
 
         {/* Details */}
         <div>
-          <motion.div variants={fadeUp} className="rounded-[2rem] bg-shell p-8 mb-8">
+          <motion.div variants={fadeUp} className="rounded-2xl bg-shell p-8 mb-8">
             <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-600 mb-6">
               <MessageCircle size={21} strokeWidth={1.9} />
             </span>
-            <h3 className="font-display text-xl font-semibold text-ink mb-3">
+            <h3 className="text-lg font-semibold text-ink mb-3">
               What a consultation covers
             </h3>
             <ul className="space-y-3 mt-5">

@@ -40,12 +40,12 @@ const OurTeam = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Our Team"
-        title="The people behind Pet Care Hub"
-        subtitle="A small team that got tired of juggling five apps to look after one dog."
+        title="Who runs this"
+        subtitle="Two founders, working out of Phagwara, Punjab."
       />
 
       {/* Team grid */}
-      <Container className="pt-6">
+      <Container className="pt-10">
         {loading ? (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl">
             {[0, 1].map((i) => (
@@ -115,8 +115,8 @@ const OurTeam = () => {
       <section className="py-20 mt-16 bg-shell">
         <Container>
           <SectionHeading
-            eyebrow="How we work"
-            title="Three rules we don't bend"
+            eyebrow=""
+            title="How we work"
             className="mb-14"
           />
 
@@ -127,7 +127,7 @@ const OurTeam = () => {
           >
             {VALUES.map((v, i) => (
               <motion.div key={v.title} variants={fadeUp}>
-                <span className="font-display text-5xl font-semibold text-blush-200 leading-none">
+                <span className="text-3xl font-semibold text-blush-200 leading-none">
                   0{i + 1}
                 </span>
                 <h3 className="mt-5 text-lg font-semibold text-ink">{v.title}</h3>

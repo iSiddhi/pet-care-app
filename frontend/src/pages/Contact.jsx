@@ -86,16 +86,16 @@ const Contact = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Contact"
-        title="Tell us what you need"
-        subtitle="A person reads every message. Expect a reply within one working day."
+        title="Contact us"
+        subtitle="Monday to Saturday, 10am to 7pm IST. We reply within one working day."
       />
 
-      <Container className="pt-4">
+      <Container className="pt-10">
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-10 lg:gap-16 items-start">
           {/* Channels */}
           <motion.div variants={stagger(0, 0.08)} initial="hidden" animate="show">
-            <motion.div variants={fadeUp} className="rounded-[2rem] bg-shell p-8">
-              <h2 className="font-display text-xl font-semibold text-ink mb-7">
+            <motion.div variants={fadeUp} className="rounded-2xl bg-shell p-8">
+              <h2 className="text-lg font-semibold text-ink mb-7">
                 Other ways to reach us
               </h2>
 
@@ -129,18 +129,6 @@ const Contact = () => {
                 })}
               </div>
             </motion.div>
-
-            <motion.div
-              variants={fadeUp}
-              className="mt-6 rounded-[2rem] border border-hairline p-7"
-            >
-              <p className="text-sm text-ink-soft leading-relaxed">
-                Looking for a one-to-one chat before you decide?
-              </p>
-              <Button to="/consult-adii-jain" variant="soft" size="sm" className="mt-4">
-                Talk to our consultant
-              </Button>
-            </motion.div>
           </motion.div>
 
           {/* Form */}
@@ -150,7 +138,7 @@ const Contact = () => {
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-7 sm:p-10"
+            className="rounded-2xl bg-cream border border-hairline shadow-soft p-7 sm:p-10"
           >
             <div className="grid sm:grid-cols-2 gap-6">
               <Field

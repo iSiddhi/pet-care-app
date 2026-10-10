@@ -90,7 +90,7 @@ const Account = () => {
         subtitle="Your orders, grooming bookings and account details."
       />
 
-      <Container className="pt-2">
+      <Container className="pt-8">
         {/* Tabs */}
         <div className="flex items-center gap-1.5 border-b border-hairline mb-10 overflow-x-auto no-scrollbar">
           {TABS.map(({ key, label, icon: Icon }) => (
@@ -192,7 +192,7 @@ const Account = () => {
                         <span className="text-sm text-ink-soft">
                           {o.items.length} {o.items.length === 1 ? 'item' : 'items'}
                         </span>
-                        <span className="font-display text-lg font-semibold text-ink tabular-nums">
+                        <span className="text-base font-semibold text-ink tabular-nums">
                           ${o.totalPrice.toFixed(2)}
                         </span>
                       </div>
@@ -267,13 +267,13 @@ const Account = () => {
               )
             ) : (
               <motion.div variants={stagger(0, 0.08)} initial="hidden" animate="show" className="max-w-lg">
-                <motion.div variants={fadeUp} className="rounded-[2rem] bg-shell p-8">
+                <motion.div variants={fadeUp} className="rounded-2xl bg-shell p-8">
                   <div className="flex items-center gap-4 mb-8">
                     <span className="grid place-items-center w-14 h-14 rounded-2xl bg-blush-200 text-blush-600 font-bold">
                       {user?.name?.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
                     </span>
                     <div>
-                      <p className="font-display text-xl font-semibold text-ink">{user?.name}</p>
+                      <p className="text-lg font-semibold text-ink">{user?.name}</p>
                       {user?.role === 'admin' && (
                         <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-blush-100 text-blush-600 text-[0.65rem] font-bold uppercase tracking-wide">
                           Admin

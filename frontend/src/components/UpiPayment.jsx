@@ -111,7 +111,7 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
         >
           <CheckCircle2 size={30} strokeWidth={2} />
         </motion.div>
-        <h2 className="font-display text-2xl font-semibold text-ink">Payment confirmed</h2>
+        <h2 className="text-xl font-semibold text-ink">Payment confirmed</h2>
         <p className="mt-3 text-ink-soft leading-relaxed">
           We've received ₹{payment.amountINR?.toLocaleString('en-IN')} and your order
           is now being prepared.
@@ -131,7 +131,7 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
         <span className="inline-grid place-items-center w-16 h-16 rounded-3xl bg-blush-100 text-blush-600 mb-6">
           <XCircle size={30} strokeWidth={2} />
         </span>
-        <h2 className="font-display text-2xl font-semibold text-ink">Payment not completed</h2>
+        <h2 className="text-xl font-semibold text-ink">Payment not completed</h2>
         <p className="mt-3 text-ink-soft leading-relaxed">
           {payment.failureReason || 'This payment could not be verified.'}
         </p>
@@ -158,7 +158,7 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
         >
           <Loader2 size={30} strokeWidth={2} />
         </motion.span>
-        <h2 className="font-display text-2xl font-semibold text-ink">Verifying your payment</h2>
+        <h2 className="text-xl font-semibold text-ink">Verifying your payment</h2>
         <p className="mt-3 text-ink-soft leading-relaxed max-w-sm mx-auto">
           We're checking reference{' '}
           <span className="font-mono text-ink">{payment.utr}</span> against our account.
@@ -194,7 +194,7 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
         {/* QR side */}
         <motion.div
           variants={fadeUp}
-          className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-7 sm:p-8 text-center"
+          className="rounded-2xl bg-cream border border-hairline shadow-soft p-7 sm:p-8 text-center"
         >
           <div className="flex items-center justify-center gap-2 mb-1">
             <ScanLine size={16} className="text-blush-500" />
@@ -203,7 +203,7 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
             </h2>
           </div>
 
-          <p className="font-display text-3xl font-semibold text-ink mt-5">
+          <p className="text-3xl font-semibold text-ink mt-5">
             ₹{payment.amountINR?.toLocaleString('en-IN')}
           </p>
           <p className="text-xs text-ink-mute mt-1">
@@ -266,8 +266,8 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
 
         {/* Steps + UTR */}
         <motion.div variants={fadeUp} className="space-y-6">
-          <div className="rounded-[2rem] bg-shell p-7 sm:p-8">
-            <h3 className="font-display text-lg font-semibold text-ink mb-6">
+          <div className="rounded-2xl bg-shell p-7 sm:p-8">
+            <h3 className="text-base font-semibold text-ink mb-6">
               How to pay
             </h3>
             <ol className="space-y-4">
@@ -290,9 +290,9 @@ const UpiPayment = ({ orderId, initialPayment, onVerified }) => {
 
           <form
             onSubmit={submitUtr}
-            className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-7 sm:p-8"
+            className="rounded-2xl bg-cream border border-hairline shadow-soft p-7 sm:p-8"
           >
-            <h3 className="font-display text-lg font-semibold text-ink mb-2">
+            <h3 className="text-base font-semibold text-ink mb-2">
               Already paid?
             </h3>
             <p className="text-sm text-ink-soft leading-relaxed mb-6">

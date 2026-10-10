@@ -30,6 +30,9 @@ export default [
       // (motion.div, <Icon />) is wrongly reported as unused.
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
+      // no-undef does not look at JSX element names, so an undefined
+      // component builds fine and blanks the page at runtime.
+      'react/jsx-no-undef': 'error',
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
       'react-refresh/only-export-components': [
         'warn',

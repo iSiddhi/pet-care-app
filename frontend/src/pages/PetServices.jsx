@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   PawPrint, Cat, Rabbit, Bird, Fish, Turtle,
@@ -6,11 +7,12 @@ import {
 } from 'lucide-react';
 
 import Container from '../components/ui/Container';
+import PageHeader from '../components/ui/PageHeader';
 import Button from '../components/ui/Button';
 import Pill from '../components/ui/Pill';
 import PetCard from '../components/PetCard';
 import { SkeletonGrid } from '../components/ui/Skeleton';
-import { stagger, fadeUp, EASE } from '../components/ui/motion';
+import { stagger, EASE } from '../components/ui/motion';
 import { apiService } from '../services/api';
 
 const CATEGORIES = [
@@ -29,7 +31,16 @@ const SORTS = [
 ];
 
 const PetServices = () => {
-  const [category, setCategory] = useState('Dog');
+  // The hero search links here with ?type= and ?maxPrice=, and changing a
+  // filter writes back to the URL so the view is shareable.
+  const [params, setParams] = useSearchParams();
+  const urlType = CATEGORIES.some((c) => c.name === params.get('type'))
+    ? params.get('type')
+    : 'Dog';
+  const urlMax = Number(params.get('maxPrice')) || null;
+
+  const [category, setCategory] = useState(urlType);
+  const [maxPrice, setMaxPrice] = useState(urlMax);
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,47 +74,19 @@ const PetServices = () => {
 
   const visible = useMemo(() => {
     let list = breed === 'All' ? pets : pets.filter((p) => p.breed === breed);
+    if (maxPrice) list = list.filter((p) => p.price <= maxPrice);
     if (sort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
     if (sort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [pets, breed, sort]);
+  }, [pets, breed, sort, maxPrice]);
 
   return (
     <div className="min-h-screen pb-24">
-      {/* Header */}
-      <section className="relative pt-16 pb-12 sm:pt-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blush-50 to-cream" />
-        <div className="absolute -top-28 right-0 w-96 h-96 rounded-full bg-lilac-100/60 blur-3xl" />
-
-        <Container className="relative">
-          <motion.div
-            variants={stagger(0, 0.08)}
-            initial="hidden"
-            animate="show"
-            className="max-w-2xl"
-          >
-            <motion.span
-              variants={fadeUp}
-              className="text-xs font-semibold uppercase tracking-[0.18em] text-blush-500"
-            >
-              Pet Services
-            </motion.span>
-            <motion.h1
-              variants={fadeUp}
-              className="mt-4 text-4xl sm:text-5xl leading-[1.08] text-ink"
-            >
-              Someone here is waiting for you
-            </motion.h1>
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 text-lg text-ink-soft leading-relaxed"
-            >
-              Every listing is health-screened, documented and ready to go home.
-              Pick a category to begin.
-            </motion.p>
-          </motion.div>
-        </Container>
-      </section>
+      <PageHeader
+        eyebrow="Pet Services"
+        title="Pets currently listed"
+        subtitle="Every listing is health-screened and priced on the card. Pick a category to filter."
+      />
 
       {/* Filter bar */}
       <div className="sticky top-[72px] z-30 glass border-y border-hairline">
@@ -115,7 +98,12 @@ const PetServices = () => {
                   key={name}
                   icon={icon}
                   active={category === name}
-                  onClick={() => setCategory(name)}
+                  onClick={() => {
+                    setCategory(name);
+                    const next = new URLSearchParams(params);
+                    next.set('type', name);
+                    setParams(next, { replace: true });
+                  }}
                   layoutId="category-pill"
                 >
                   {name}
@@ -176,10 +164,20 @@ const PetServices = () => {
             {loading
               ? 'Loading…'
               : `${visible.length} ${visible.length === 1 ? 'pet' : 'pets'} available`}
+            {maxPrice && !loading && (
+              <span className="text-ink-mute"> · under ${maxPrice}</span>
+            )}
           </p>
-          {(breed !== 'All' || sort !== 'featured') && !loading && (
+          {(breed !== 'All' || sort !== 'featured' || maxPrice) && !loading && (
             <button
-              onClick={() => { setBreed('All'); setSort('featured'); }}
+              onClick={() => {
+                setBreed('All');
+                setSort('featured');
+                setMaxPrice(null);
+                const next = new URLSearchParams(params);
+                next.delete('maxPrice');
+                setParams(next, { replace: true });
+              }}
               className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink transition-colors"
             >
               <RotateCcw size={14} />

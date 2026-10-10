@@ -52,8 +52,8 @@ const Grooming = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Grooming"
-        title="A spa day, booked in under a minute"
-        subtitle="Vetted groomers, transparent pricing and no surprise add-ons at pickup."
+        title="Grooming, priced before you book"
+        subtitle="Three groomers, six services, slots nine to five every day. The price is agreed before we start."
       >
         <div className="flex flex-wrap gap-3">
           <Button href="#groomers" size="lg">
@@ -72,8 +72,8 @@ const Grooming = () => {
           <SectionHeading
             align="left"
             eyebrow="Services"
-            title="What we offer"
-            subtitle="Flat pricing by service. The range covers small to large breeds."
+            title="Services and prices"
+            subtitle="The range covers small to large breeds. Nothing is added at pickup."
             className="mx-0 mb-12"
           />
 
@@ -92,7 +92,7 @@ const Grooming = () => {
                   <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-50 text-blush-500 transition-colors group-hover:bg-blush-100">
                     <Icon size={21} strokeWidth={1.9} />
                   </span>
-                  <span className="font-display text-lg font-semibold text-ink">{price}</span>
+                  <span className="text-base font-semibold text-ink">{price}</span>
                 </div>
 
                 <h3 className="text-lg font-semibold text-ink mb-2">{name}</h3>
@@ -113,8 +113,8 @@ const Grooming = () => {
         <Container>
           <SectionHeading
             eyebrow="The team"
-            title="Meet your groomers"
-            subtitle="Every one of them is trained, insured and genuinely fond of animals."
+            title="Who will be grooming"
+            subtitle="Pick by speciality. Each one is trained and insured."
             className="mb-14"
           />
 
@@ -222,7 +222,7 @@ const Grooming = () => {
       {/* How it works */}
       <section className="py-20">
         <Container>
-          <SectionHeading eyebrow="How it works" title="Three steps, that's it" className="mb-14" />
+          <SectionHeading eyebrow="How it works" title="Booking a slot" className="mb-14" />
 
           <motion.div
             variants={stagger(0, 0.1)}
@@ -231,7 +231,7 @@ const Grooming = () => {
           >
             {STEPS.map((s) => (
               <motion.div key={s.n} variants={fadeUp} className="relative">
-                <span className="font-display text-5xl font-semibold text-blush-200 leading-none">
+                <span className="text-3xl font-semibold text-blush-200 leading-none">
                   {s.n}
                 </span>
                 <h3 className="mt-5 text-lg font-semibold text-ink">{s.title}</h3>
