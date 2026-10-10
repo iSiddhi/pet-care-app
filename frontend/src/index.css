@@ -107,11 +107,27 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Frosted layer used by the navbar and overlay chips */
+  /* Frosted layer used by overlay chips and buttons sitting on images */
   .glass {
     background-color: rgb(254 252 251 / 0.72);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  /* Sticky bars (nav, filter rows) are solid on phones: backdrop-filter is
+     costly on mobile GPUs and the translucency makes text hard to read as
+     photos scroll underneath. Frosted from lg up, where there is room for
+     the effect to read as intentional. */
+  .glass-bar {
+    background-color: var(--color-cream);
+  }
+
+  @media (min-width: 64rem) {
+    .glass-bar {
+      background-color: rgb(254 252 251 / 0.72);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+    }
   }
 
   /* Shimmer for skeleton placeholders */

@@ -89,7 +89,7 @@ const PetServices = () => {
       />
 
       {/* Filter bar */}
-      <div className="sticky top-[72px] z-30 glass border-y border-hairline">
+      <div className="sticky top-[72px] z-30 glass-bar border-y border-hairline">
         <Container>
           <div className="flex items-center gap-4 py-3">
             <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar">

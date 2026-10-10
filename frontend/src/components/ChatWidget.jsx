@@ -19,6 +19,43 @@ const SUGGESTIONS = [
   'My dog keeps scratching',
 ];
 
+/**
+ * On phones the software keyboard covers the bottom of the layout viewport
+ * without resizing it, so a `fixed bottom-0` panel ends up behind the keys
+ * and you cannot see what you are typing.
+ *
+ * visualViewport reports the part that is actually visible. The difference
+ * between that and window.innerHeight is the keyboard, and we lift the
+ * widget by exactly that much.
+ */
+const useKeyboardInset = () => {
+  const [inset, setInset] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(
+    typeof window === 'undefined' ? 800 : window.innerHeight
+  );
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+
+    const update = () => {
+      const covered = window.innerHeight - vv.height - vv.offsetTop;
+      setInset(Math.max(0, Math.round(covered)));
+      setViewportHeight(vv.height);
+    };
+
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
+
+  return { inset, viewportHeight };
+};
+
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([GREETING]);
@@ -26,6 +63,10 @@ const ChatWidget = () => {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const { inset, viewportHeight } = useKeyboardInset();
+
+  // 27rem normally, but never taller than what the keyboard leaves visible
+  const panelHeight = Math.max(240, Math.min(432, viewportHeight - 132));
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -63,7 +104,10 @@ const ChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    <div
+      style={{ bottom: `calc(1.25rem + ${inset}px)` }}
+      className="fixed right-5 z-50 flex flex-col items-end gap-3 transition-[bottom] duration-200"
+    >
       <AnimatePresence>
         {open && (
           <motion.div
@@ -71,8 +115,8 @@ const ChatWidget = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
             transition={{ duration: 0.28, ease: EASE }}
-            style={{ transformOrigin: 'bottom right' }}
-            className="w-[min(22rem,calc(100vw-2.5rem))] h-[27rem] rounded-3xl bg-cream border border-hairline shadow-lift overflow-hidden flex flex-col"
+            style={{ transformOrigin: 'bottom right', height: panelHeight }}
+            className="w-[min(22rem,calc(100vw-2.5rem))] rounded-3xl bg-cream border border-hairline shadow-lift overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-hairline bg-blush-50/60 shrink-0">
