@@ -19,7 +19,6 @@ const columns = [
       { to: '/about', label: 'About us' },
       { to: '/team', label: 'Our team' },
       { to: '/gallery', label: 'Gallery' },
-      { to: '/consult-adii-jain', label: 'Consultant' },
       { to: '/contact', label: 'Contact' },
     ],
   },
@@ -41,7 +40,7 @@ const Footer = () => (
             <span className="grid place-items-center w-9 h-9 rounded-full bg-blush-100 text-blush-500">
               <PawPrint size={18} strokeWidth={2.2} />
             </span>
-            <span className="font-display text-lg font-semibold text-ink">Pet Care Hub</span>
+            <span className="text-base font-semibold text-ink">Pet Care Hub</span>
           </Link>
           <p className="text-sm text-ink-soft leading-relaxed max-w-xs">
             Find a companion, book grooming, shop essentials and check symptoms —
@@ -115,12 +114,12 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className="mt-14 pt-8 border-t border-hairline flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mt-14 pt-8 border-t border-hairline flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <p className="text-xs text-ink-mute">
-          © {new Date().getFullYear()} Pet Care Hub. All rights reserved.
+          © {new Date().getFullYear()} Pet Care Hub
         </p>
         <p className="text-xs text-ink-mute">
-          Health guidance here is informational and never replaces a licensed vet.
+          Health guidance is informational and does not replace a licensed vet.
         </p>
       </div>
     </Container>

@@ -68,8 +68,8 @@ const Essentials = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Essentials"
-        title="Everything they need, nothing they don't"
-        subtitle="Food, bedding, toys and care kits — picked for quality, not margin."
+        title="Pet essentials"
+        subtitle="Food, bedding, toys, carriers and care kits. Stock status is shown per item."
       />
 
       {/* Pet tabs */}

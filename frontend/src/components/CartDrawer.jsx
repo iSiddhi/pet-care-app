@@ -34,7 +34,7 @@ const CartDrawer = ({ open, onClose }) => {
             className="fixed top-0 right-0 bottom-0 z-[61] w-[min(26rem,100vw)] bg-cream flex flex-col shadow-lift"
           >
             <div className="flex items-center justify-between px-6 py-5 border-b border-hairline shrink-0">
-              <h2 className="font-display text-xl font-semibold text-ink flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
                 Your bag
                 {cart.count > 0 && (
                   <span className="text-sm font-sans font-medium text-ink-mute">
@@ -182,7 +182,7 @@ const CartDrawer = ({ open, onClose }) => {
 
                   <div className="pt-3 border-t border-hairline flex items-center justify-between">
                     <span className="font-medium text-ink">Total</span>
-                    <span className="font-display text-xl font-semibold text-ink tabular-nums">
+                    <span className="text-lg font-semibold text-ink tabular-nums">
                       ${(cart.subtotal + shipping).toFixed(2)}
                     </span>
                   </div>

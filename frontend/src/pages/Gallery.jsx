@@ -72,13 +72,13 @@ const Gallery = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Gallery"
-        title="Moments from our community"
-        subtitle="Photographs sent in by the families who found their companion here."
+        title="Gallery"
+        subtitle="Photos of the animals we have listed, sorted by kind."
       />
 
       {/* Category filter */}
       <Container>
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-8 pb-2">
           {categories.map((c) => (
             <button
               key={c}

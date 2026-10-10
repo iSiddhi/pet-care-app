@@ -44,9 +44,10 @@
   --color-lavender: #EFE8F6;
   --color-green:    #DEF1E9;
 
-  /* Type */
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  /* Type -- one family. A serif display face reads as "designed",
+     which is the opposite of what we want here. */
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* Radii — large and soft, the single biggest "premium" lever */
   --radius-xl: 1rem;
@@ -74,9 +75,8 @@
   }
 
   h1, h2, h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
-    font-weight: 600;
+    letter-spacing: -0.015em;
+    font-weight: 700;
   }
 
   ::selection {

@@ -87,7 +87,7 @@ const Checkout = () => {
           title="Pay with UPI"
           subtitle={`Order #${String(created.order._id).slice(-8).toUpperCase()} is reserved for you.`}
         />
-        <Container className="pt-4">
+        <Container className="pt-10">
           <UpiPayment
             orderId={created.order._id}
             initialPayment={created.payment}
@@ -103,7 +103,7 @@ const Checkout = () => {
     return (
       <div className="min-h-[70vh]">
         <PageHeader eyebrow="Checkout" title="Nothing to check out yet" />
-        <Container className="pt-4">
+        <Container className="pt-10">
           <EmptyState
             icon={ShoppingBag}
             title="Your bag is empty"
@@ -121,7 +121,7 @@ const Checkout = () => {
     <div className="min-h-screen pb-24">
       <PageHeader eyebrow="Checkout" title="Where should it go?" />
 
-      <Container className="pt-4">
+      <Container className="pt-10">
         <div className="grid lg:grid-cols-[1.3fr_1fr] gap-8 lg:gap-12 items-start">
           <motion.form
             onSubmit={submit}
@@ -133,7 +133,7 @@ const Checkout = () => {
           >
             <motion.div
               variants={fadeUp}
-              className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-7 sm:p-8"
+              className="rounded-2xl bg-cream border border-hairline shadow-soft p-7 sm:p-8"
             >
               <div className="flex items-center gap-2.5 mb-7">
                 <Truck size={17} className="text-blush-500" />
@@ -155,7 +155,7 @@ const Checkout = () => {
             {/* UPI is the only method, so this states it rather than asking */}
             <motion.div
               variants={fadeUp}
-              className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-7 sm:p-8"
+              className="rounded-2xl bg-cream border border-hairline shadow-soft p-7 sm:p-8"
             >
               <div className="flex items-center gap-2.5 mb-6">
                 <Smartphone size={17} className="text-blush-500" />
@@ -201,9 +201,9 @@ const Checkout = () => {
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            className="rounded-[2rem] bg-shell p-7 lg:sticky lg:top-28"
+            className="rounded-2xl bg-shell p-7 lg:sticky lg:top-28"
           >
-            <h2 className="font-display text-xl font-semibold text-ink mb-6">
+            <h2 className="text-lg font-semibold text-ink mb-6">
               Order summary
             </h2>
 
@@ -234,7 +234,7 @@ const Checkout = () => {
               <Row label="Shipping" value={shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`} />
               <div className="pt-3 border-t border-hairline flex items-center justify-between">
                 <span className="font-medium text-ink">Total</span>
-                <span className="font-display text-2xl font-semibold text-ink tabular-nums">
+                <span className="text-xl font-semibold text-ink tabular-nums">
                   ${total.toFixed(2)}
                 </span>
               </div>

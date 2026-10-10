@@ -86,7 +86,7 @@ const ProductCard = ({ product }) => {
           </p>
         )}
         <div className="mt-3 flex items-center justify-between">
-          <span className="font-display text-lg font-semibold text-ink">
+          <span className="text-base font-semibold text-ink">
             ${product.price?.toFixed(2)}
           </span>
           {qty > 0 && (

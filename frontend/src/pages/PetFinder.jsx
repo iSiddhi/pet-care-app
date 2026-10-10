@@ -68,17 +68,17 @@ const PetFinder = () => {
     <div className="min-h-screen pb-24">
       <PageHeader
         eyebrow="Pet Finder"
-        title="Tell us what fits your life"
-        subtitle="Three questions and we'll shortlist the pets that match your home, schedule and budget."
+        title="Find a pet that fits"
+        subtitle="Pick a type, breed and budget. We filter the listings against it — no quiz, no email required."
       />
 
       {/* Filter panel */}
-      <Container className="pt-4">
+      <Container className="pt-10">
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-6 sm:p-8"
+          className="rounded-2xl bg-cream border border-hairline shadow-soft p-6 sm:p-8"
         >
           <div className="flex items-center gap-2 mb-7">
             <SlidersHorizontal size={16} className="text-blush-500" />

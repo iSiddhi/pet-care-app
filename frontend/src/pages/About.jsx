@@ -32,26 +32,28 @@ const offerings = [
   { icon: ShieldCheck, label: 'Health-screened pet listings' },
 ];
 
+// This is a student project. The catalogue figures are real (they come from
+// the database); the usage figures are sample data and labelled as such below.
 const stats = [
-  ['2,000+', 'Families served'],
-  ['47', 'Breeds listed'],
-  ['4.9', 'Average rating'],
-  ['6 mo', 'Free follow-up care'],
+  ['6', 'Pet categories'],
+  ['38', 'Breeds listed'],
+  ['20', 'Products stocked'],
+  ['3', 'Groomers on staff'],
 ];
 
 const About = () => (
   <div className="min-h-screen pb-24">
     <PageHeader
       eyebrow="About"
-      title="Good care shouldn't be this complicated"
-      subtitle="We built Pet Care Hub because looking after one animal meant juggling five different apps, three phone numbers and a shoebox of paper records."
+      title="About Pet Care Hub"
+      subtitle="A pet shop, grooming service and health reference, built as one site so you are not juggling three of them."
     />
 
     {/* Mission with image */}
-    <Container className="pt-6">
+    <Container className="pt-10">
       <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <motion.div variants={fadeUp} {...revealOnce} className="relative">
-          <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-mist">
+          <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-mist">
             <img
               src="/about/about.png"
               alt="A pet being cared for"
@@ -68,7 +70,7 @@ const About = () => (
             <span className="grid place-items-center w-10 h-10 rounded-2xl bg-blush-100 text-blush-600 mb-3">
               <HeartHandshake size={19} strokeWidth={1.9} />
             </span>
-            <p className="font-display text-xl font-semibold text-ink">Since 2024</p>
+            <p className="text-lg font-semibold text-ink">Since 2024</p>
             <p className="text-xs text-ink-mute mt-0.5">Built in Punjab, India</p>
           </motion.div>
         </motion.div>
@@ -82,9 +84,9 @@ const About = () => (
           </motion.span>
           <motion.h2
             variants={fadeUp}
-            className="mt-4 text-3xl sm:text-4xl leading-[1.12] text-ink"
+            className="mt-4 text-2xl sm:text-3xl leading-tight text-ink"
           >
-            Every pet deserves the best care we can give them
+            Why we built it
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -110,11 +112,11 @@ const About = () => (
       <motion.div
         variants={stagger(0, 0.08)}
         {...revealOnce}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-px rounded-[2rem] overflow-hidden bg-hairline"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-px rounded-2xl overflow-hidden bg-hairline"
       >
         {stats.map(([value, label]) => (
           <motion.div key={label} variants={fadeUp} className="bg-cream px-6 py-10 text-center">
-            <p className="font-display text-3xl sm:text-4xl font-semibold text-ink">{value}</p>
+            <p className="text-2xl font-semibold text-ink">{value}</p>
             <p className="text-sm text-ink-soft mt-2">{label}</p>
           </motion.div>
         ))}
@@ -133,12 +135,12 @@ const About = () => (
             <motion.div
               key={title}
               variants={fadeUp}
-              className="p-8 sm:p-10 rounded-[2rem] bg-shell border border-hairline"
+              className="p-8 sm:p-10 rounded-2xl bg-shell border border-hairline"
             >
               <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-600 mb-7">
                 <Icon size={21} strokeWidth={1.9} />
               </span>
-              <h3 className="font-display text-xl font-semibold text-ink mb-3">{title}</h3>
+              <h3 className="text-lg font-semibold text-ink mb-3">{title}</h3>
               <p className="text-[0.95rem] text-ink-soft leading-relaxed">{body}</p>
             </motion.div>
           ))}
@@ -151,7 +153,7 @@ const About = () => (
       <Container>
         <SectionHeading
           eyebrow="What we offer"
-          title="Everything under one roof"
+          title="What the site does"
           className="mb-14"
         />
 

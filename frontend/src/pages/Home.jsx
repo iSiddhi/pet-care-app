@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  PawPrint, ShoppingBag, Scissors, Search, Stethoscope, Images,
-  ArrowRight, ShieldCheck, Clock, HeartHandshake, Star,
+  ArrowRight, Minus, Plus,
+  PawPrint, Cat, Rabbit, Bird, Fish, Turtle,
 } from 'lucide-react';
 
 import Container from '../components/ui/Container';
@@ -12,380 +12,365 @@ import SectionHeading from '../components/ui/SectionHeading';
 import PetCard from '../components/PetCard';
 import ChatWidget from '../components/ChatWidget';
 import { CardSkeleton } from '../components/ui/Skeleton';
-import { fadeUp, stagger, revealOnce, EASE } from '../components/ui/motion';
+import { fadeUp, stagger, EASE } from '../components/ui/motion';
 import { apiService } from '../services/api';
 
-const categories = [
-  { name: 'Dog', image: '/PetServices/Dog1.png', count: '12 breeds' },
-  { name: 'Cat', image: '/PetServices/cat1.png', count: '9 breeds' },
-  { name: 'Rabbit', image: '/PetServices/rabbit1.png', count: '6 breeds' },
-  { name: 'Birds', image: '/PetServices/birds1.png', count: '8 breeds' },
-  { name: 'Fish', image: '/PetServices/fish1.png', count: '7 breeds' },
-  { name: 'Turtle', image: '/PetServices/turtle1.png', count: '5 breeds' },
+const CATEGORIES = [
+  { name: 'Dog', icon: PawPrint },
+  { name: 'Cat', icon: Cat },
+  { name: 'Rabbit', icon: Rabbit },
+  { name: 'Birds', icon: Bird },
+  { name: 'Fish', icon: Fish },
+  { name: 'Turtle', icon: Turtle },
 ];
 
-const services = [
-  { to: '/pet-services', label: 'Pet Services', desc: 'Browse pets by category, breed and budget.', icon: PawPrint },
-  { to: '/essentials', label: 'Essentials', desc: 'Food, toys, bedding and care kits.', icon: ShoppingBag },
-  { to: '/grooming', label: 'Grooming', desc: 'Book a vetted groomer near you.', icon: Scissors },
-  { to: '/pet-finder', label: 'Pet Finder', desc: 'Match with a pet that fits your life.', icon: Search },
-  { to: '/disease-prediction', label: 'Health Check', desc: 'Describe symptoms, get guidance.', icon: Stethoscope },
-  { to: '/gallery', label: 'Gallery', desc: 'Moments from our community.', icon: Images },
+const CATEGORY_ORDER = CATEGORIES.map((c) => c.name);
+
+// Mirrors backend/utils/upi.js and the grooming page. Kept here rather than
+// behind an icon card because a price list is the thing people actually want.
+const GROOMING = [
+  ['Nail trimming', '$15–25', '30 min'],
+  ['Dental care', '$25–40', '45 min'],
+  ['Basic grooming', '$35–50', '1–2 hrs'],
+  ['Flea treatment', '$30–45', '1 hr'],
+  ['Premium spa', '$60–80', '2–3 hrs'],
+  ['Full package', '$80–120', '3–4 hrs'],
 ];
 
-const promises = [
-  { icon: ShieldCheck, title: 'Vet-checked', body: 'Every pet listed is health-screened and documented before it appears here.' },
-  { icon: Clock, title: 'Same-week booking', body: 'Grooming slots open eight times a day, seven days a week.' },
-  { icon: HeartHandshake, title: 'Care after adoption', body: 'Free follow-up guidance for the first six months. No upsell.' },
+const FAQS = [
+  {
+    q: 'How does payment work?',
+    a: 'UPI only. At checkout you get a QR code that goes straight to our UPI ID. After paying you enter the 12-digit reference number from your app, and we match it against our statement before dispatch. Shipping is $4.99, free over $75.',
+  },
+  {
+    q: 'Is the health check a diagnosis?',
+    a: 'No. It reads your description against a reference of 15 common conditions and tells you what to look into and when to see a vet. It is triage guidance, not a diagnosis, and it says so on every result.',
+  },
+  {
+    q: 'What happens to my cart if I am not signed in?',
+    a: 'It is kept in your browser. When you sign in, it merges into your account rather than being replaced, so nothing you added is lost.',
+  },
+  {
+    q: 'Can I cancel a grooming booking?',
+    a: 'Yes, from your account page, any time before the slot. Slots run 9am to 5pm, eight a day, seven days a week.',
+  },
 ];
 
 const Home = () => {
   const [featured, setFeatured] = useState([]);
+  const [counts, setCounts] = useState(null);
+  const [categoryStats, setCategoryStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { scrollY } = useScroll();
+  const [openFaq, setOpenFaq] = useState(0);
 
-  // Gentle parallax on the hero video
-  const videoY = useTransform(scrollY, [0, 600], [0, 120]);
-  const heroOpacity = useTransform(scrollY, [0, 420], [1, 0]);
 
   useEffect(() => {
     let alive = true;
-    apiService
-      .getPetsByType('Dog')
-      .then((res) => { if (alive) setFeatured((res.pets || []).slice(0, 3)); })
-      .catch(() => { if (alive) setFeatured([]); })
+
+    // One pass over the catalogue gives the fact strip, the category counts
+    // and the featured dogs, so the page makes three requests instead of five.
+    Promise.allSettled([
+      apiService.getPetsByType(),
+      apiService.getBreedsByPet(),
+      apiService.getGroomers(),
+    ])
+      .then(([pets, breeds, groomers]) => {
+        if (!alive) return;
+
+        const all = pets.status === 'fulfilled' ? pets.value.pets || [] : [];
+        setFeatured(all.filter((p) => p.type === 'Dog').slice(0, 3));
+
+        setCategoryStats(
+          CATEGORY_ORDER.map((name) => {
+            const group = all.filter((p) => p.type === name);
+            return {
+              name,
+              count: group.length,
+              from: group.length ? Math.min(...group.map((p) => p.price)) : null,
+            };
+          })
+        );
+
+        setCounts({
+          breeds: breeds.status === 'fulfilled' ? (breeds.value.breeds || []).length : null,
+          groomers: groomers.status === 'fulfilled' ? (groomers.value || []).length : null,
+        });
+      })
       .finally(() => { if (alive) setLoading(false); });
+
     return () => { alive = false; };
   }, []);
 
   return (
-    <div className="overflow-x-hidden">
+    <div>
       {/* ---------------- Hero ---------------- */}
-      <section className="relative min-h-[88vh] flex items-center overflow-hidden">
-        <motion.div style={{ y: videoY }} className="absolute inset-0 -top-20 -bottom-20">
+      {/* No stat grid here -- a row of label/number tiles reads exactly like
+          the category row further down. One inline line carries the same
+          facts and leaves the frame to the video. */}
+      <section className="relative overflow-hidden border-b border-hairline">
+        <div className="absolute inset-0">
+          {/* scale-105 hides the soft edge a blur leaves at the frame */}
           <video
             autoPlay loop muted playsInline
             poster="/home/hello.png"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover scale-105 blur-[3px]"
           >
             <source src="/home/HOMEE.mp4" type="video/mp4" />
           </video>
-        </motion.div>
 
-        {/* Pastel wash instead of a hard dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blush-100/85 via-lilac-100/70 to-sage-100/75" />
-        <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/80 to-transparent" />
+          <div className="absolute inset-0 bg-blush-50/25" />
+        </div>
 
-        <Container className="relative z-10 py-24">
+        <Container className="relative py-20 sm:py-28 lg:py-32">
           <motion.div
-            variants={stagger(0.1, 0.1)}
+            variants={stagger(0, 0.06)}
             initial="hidden"
             animate="show"
-            className="max-w-3xl"
+            className="max-w-xl"
           >
-            <motion.span
-              variants={fadeUp}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-cream/60 text-xs font-semibold tracking-wide text-ink mb-7"
-            >
-              <Star size={13} className="fill-blush-400 text-blush-400" />
-              Trusted by 2,000+ pet parents
-            </motion.span>
-
             <motion.h1
               variants={fadeUp}
-              className="text-[2.75rem] sm:text-6xl lg:text-[4.25rem] leading-[1.03] text-ink"
+              className="text-3xl sm:text-4xl leading-tight text-ink"
             >
-              Everything your pet
-              <br />
-              needs, in one
-              <span className="relative inline-block ml-3">
-                <span className="relative z-10">place.</span>
-                <motion.span
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.8, delay: 0.8, ease: EASE }}
-                  style={{ originX: 0 }}
-                  className="absolute left-0 right-0 bottom-1.5 h-3 sm:h-4 bg-blush-200/80 rounded-full -z-0"
-                />
-              </span>
+              Find a pet, book a groomer,
+              <br className="hidden sm:block" /> order their food.
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
-              className="mt-7 text-lg sm:text-xl leading-relaxed text-ink-soft max-w-xl"
+              className="mt-5 text-lg leading-relaxed text-ink-soft"
             >
-              Find a companion, book grooming, shop essentials and check
-              symptoms — without juggling five different apps.
+              A pet care shop and clinic directory run out of Phagwara, Punjab.
+              Every listing is priced on the page, and grooming slots are open
+              seven days a week.
             </motion.p>
 
-            <motion.div variants={fadeUp} className="mt-10 flex flex-wrap gap-3">
+            <motion.div variants={fadeUp} className="mt-7 flex flex-wrap gap-3">
               <Button to="/pet-services" size="lg">
-                Explore pets
-                <ArrowRight size={17} strokeWidth={2.2} />
+                Browse pets
+                <ArrowRight size={16} strokeWidth={2.2} />
               </Button>
               <Button to="/grooming" variant="outline" size="lg">
-                Book grooming
+                Grooming prices
               </Button>
             </motion.div>
 
-            <motion.div
+            <motion.p
               variants={fadeUp}
-              className="mt-14 flex flex-wrap gap-x-10 gap-y-5"
+              className="mt-6 text-sm text-ink-soft"
             >
-              {[
-                ['2,000+', 'Happy families'],
-                ['47', 'Breeds listed'],
-                ['4.9', 'Average rating'],
-              ].map(([stat, label]) => (
-                <div key={label}>
-                  <p className="font-display text-2xl font-semibold text-ink">{stat}</p>
-                  <p className="text-sm text-ink-soft mt-0.5">{label}</p>
-                </div>
-              ))}
-            </motion.div>
+              {counts?.breeds ?? 38} breeds listed
+              <Dot />
+              grooming from $15
+              <Dot />
+              free shipping over $75
+            </motion.p>
           </motion.div>
         </Container>
-
-        {/* Scroll hint */}
-        <motion.div
-          style={{ opacity: heroOpacity }}
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10"
-        >
-          <motion.div
-            animate={{ y: [0, 7, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-6 h-10 rounded-full border-2 border-ink/25 flex justify-center pt-2"
-          >
-            <span className="w-1 h-1.5 rounded-full bg-ink/40" />
-          </motion.div>
-        </motion.div>
       </section>
 
       {/* ---------------- Categories ---------------- */}
-      <section className="py-20 sm:py-28">
+      {/* A count and a starting price say more than six stock photos. */}
+      <section className="py-16 sm:py-20">
         <Container>
-          <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
             <SectionHeading
-              align="left"
-              eyebrow="Browse"
-              title="Find them by kind"
-              subtitle="Six categories, every one vet-checked before it reaches this page."
-              className="mx-0"
+              title="Browse by kind"
+              subtitle="Filter by breed and budget on the next page."
             />
             <Link
               to="/pet-services"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:text-blush-500 transition-colors group"
+              className="text-sm font-medium text-ink hover:text-blush-500 transition-colors"
             >
-              View all
-              <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+              All pets →
             </Link>
           </div>
 
-          <motion.div
-            variants={stagger(0, 0.07)}
-            {...revealOnce}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5"
-          >
-            {categories.map((cat) => (
-              <motion.div key={cat.name} variants={fadeUp}>
+          <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            {CATEGORIES.map(({ name, icon: Icon }) => {
+              const stat = categoryStats.find((c) => c.name === name);
+              return (
+                <Link
+                  key={name}
+                  to="/pet-services"
+                  className="group flex flex-col items-center justify-center gap-2.5 aspect-square rounded-xl border border-hairline bg-cream hover:border-blush-300 hover:bg-blush-50 transition-colors"
+                >
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-blush-50 text-blush-500 transition-colors group-hover:bg-cream">
+                    <Icon size={22} strokeWidth={1.8} />
+                  </span>
+                  <span className="text-sm font-medium text-ink">{name}</span>
+                  <span className="text-xs text-ink-mute tabular-nums">
+                    {stat ? `${stat.count} listed` : '\u00a0'}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </Container>
+      </section>
+
+      {/* ---------------- Featured + grooming prices, side by side ---------------- */}
+      <section className="py-16 sm:py-20 border-y border-hairline bg-shell">
+        <Container>
+          <div className="grid lg:grid-cols-[1.5fr_1fr] gap-12 lg:gap-16">
+            {/* Pets */}
+            <div>
+              <div className="flex items-end justify-between gap-4 mb-7">
+                <SectionHeading title="Dogs looking for a home" />
                 <Link
                   to="/pet-services"
-                  className="group block relative aspect-[3/4] rounded-3xl overflow-hidden bg-mist"
+                  className="text-sm font-medium text-ink hover:text-blush-500 transition-colors shrink-0"
                 >
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/65 via-ink/5 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-4">
-                    <p className="text-cream font-semibold leading-tight">{cat.name}</p>
-                    <p className="text-cream/70 text-xs mt-0.5">{cat.count}</p>
-                  </div>
+                  See all →
                 </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </Container>
-      </section>
-
-      {/* ---------------- Services ---------------- */}
-      <section className="py-20 sm:py-28 bg-shell">
-        <Container>
-          <SectionHeading
-            eyebrow="What we do"
-            title="Care that covers the whole journey"
-            subtitle="From the first meeting to the thousandth walk — the tools you need, none you don't."
-            className="mb-16"
-          />
-
-          <motion.div
-            variants={stagger(0, 0.07)}
-            {...revealOnce}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-          >
-            {services.map(({ to, label, desc, icon: Icon }) => (
-              <motion.div key={to} variants={fadeUp}>
-                <Link
-                  to={to}
-                  className="group block h-full p-7 rounded-3xl bg-cream border border-hairline hover:border-blush-200 hover:shadow-lift transition-all duration-300"
-                >
-                  <span className="grid place-items-center w-12 h-12 rounded-2xl bg-blush-50 text-blush-500 mb-6 transition-colors group-hover:bg-blush-100">
-                    <Icon size={21} strokeWidth={1.9} />
-                  </span>
-                  <h3 className="text-lg font-semibold text-ink mb-2">{label}</h3>
-                  <p className="text-sm text-ink-soft leading-relaxed mb-5">{desc}</p>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-blush-500">
-                    Explore
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </Container>
-      </section>
-
-      {/* ---------------- Featured pets (live from the API) ---------------- */}
-      <section className="py-20 sm:py-28">
-        <Container>
-          <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
-            <SectionHeading
-              align="left"
-              eyebrow="Looking for a home"
-              title="Meet a few of them"
-              className="mx-0"
-            />
-            <Link
-              to="/pet-services"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:text-blush-500 transition-colors group"
-            >
-              See everyone
-              <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {[0, 1, 2].map((i) => <CardSkeleton key={i} />)}
-            </div>
-          ) : featured.length > 0 ? (
-            <motion.div
-              variants={stagger(0, 0.1)}
-              {...revealOnce}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
-            >
-              {featured.map((pet, i) => (
-                <Link key={pet._id || i} to="/pet-services">
-                  <PetCard pet={pet} index={i} />
-                </Link>
-              ))}
-            </motion.div>
-          ) : (
-            <div className="rounded-3xl border border-dashed border-hairline py-16 text-center">
-              <p className="text-ink-soft">
-                Pets will appear here once the API is reachable.
-              </p>
-            </div>
-          )}
-        </Container>
-      </section>
-
-      {/* ---------------- Promises ---------------- */}
-      <section className="py-20 sm:py-28 bg-shell">
-        <Container>
-          <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
-            <motion.div variants={fadeUp} {...revealOnce} className="relative">
-              <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-blush-50">
-                <img
-                  src="/illustrations/pets-at-home.svg"
-                  alt="A dog and a cat resting together at home"
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                />
               </div>
-              {/* Floating stat card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
-                className="absolute -bottom-6 -right-2 sm:right-6 px-6 py-5 rounded-3xl bg-cream shadow-lift border border-hairline"
-              >
-                <div className="flex items-center gap-1 mb-1.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={13} className="fill-blush-400 text-blush-400" />
+
+              {loading ? (
+                <div className="grid sm:grid-cols-3 gap-5">
+                  {[0, 1, 2].map((i) => <CardSkeleton key={i} />)}
+                </div>
+              ) : featured.length > 0 ? (
+                <div className="grid sm:grid-cols-3 gap-5">
+                  {featured.map((pet, i) => (
+                    <Link key={pet._id || i} to="/pet-services">
+                      <PetCard pet={pet} index={i} />
+                    </Link>
                   ))}
                 </div>
-                <p className="font-display text-xl font-semibold text-ink">4.9 out of 5</p>
-                <p className="text-xs text-ink-mute mt-0.5">from 1,240 reviews</p>
-              </motion.div>
-            </motion.div>
+              ) : (
+                <p className="text-sm text-ink-soft rounded-2xl border border-dashed border-hairline py-12 text-center">
+                  Listings load once the API is reachable.
+                </p>
+              )}
+            </div>
 
-            <motion.div variants={stagger(0, 0.1)} {...revealOnce}>
-              <motion.span
-                variants={fadeUp}
-                className="text-xs font-semibold uppercase tracking-[0.18em] text-blush-500"
-              >
-                Why us
-              </motion.span>
-              <motion.h2
-                variants={fadeUp}
-                className="mt-4 text-3xl sm:text-4xl leading-[1.12] text-ink"
-              >
-                Three things we refuse to cut corners on
-              </motion.h2>
+            {/* Price list — plain table, no cards */}
+            <div>
+              <SectionHeading title="Grooming prices" className="mb-7" />
 
-              <div className="mt-10 space-y-7">
-                {promises.map(({ icon: Icon, title, body }) => (
-                  <motion.div key={title} variants={fadeUp} className="flex gap-4">
-                    <span className="grid place-items-center w-11 h-11 rounded-2xl bg-blush-100 text-blush-600 shrink-0">
-                      <Icon size={19} strokeWidth={1.9} />
-                    </span>
-                    <div>
-                      <h3 className="text-base font-semibold text-ink">{title}</h3>
-                      <p className="mt-1.5 text-sm text-ink-soft leading-relaxed">{body}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+              <table className="w-full text-sm">
+                <tbody>
+                  {GROOMING.map(([name, price, time]) => (
+                    <tr key={name} className="border-b border-hairline last:border-0">
+                      <td className="py-3 pr-3 text-ink">{name}</td>
+                      <td className="py-3 pr-3 text-ink-mute text-xs whitespace-nowrap">{time}</td>
+                      <td className="py-3 text-right font-medium text-ink tabular-nums whitespace-nowrap">
+                        {price}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p className="text-xs text-ink-mute mt-4 leading-relaxed">
+                Range covers small to large breeds. The price is confirmed before
+                we start — nothing is added at pickup.
+              </p>
+
+              <Button to="/grooming" variant="outline" size="sm" className="mt-5">
+                Book a slot
+              </Button>
+            </div>
           </div>
         </Container>
       </section>
 
-      {/* ---------------- Closing CTA ---------------- */}
-      <section className="py-20 sm:py-28">
+      {/* ---------------- What's here ---------------- */}
+      <section className="py-16 sm:py-20">
         <Container>
-          <motion.div
-            variants={fadeUp}
-            {...revealOnce}
-            className="relative rounded-[2.5rem] overflow-hidden px-7 py-20 sm:px-16 sm:py-24 text-center"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-blush-100 via-lilac-100 to-sage-100" />
-            <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-blush-200/50 blur-3xl" />
-            <div className="absolute -bottom-20 -left-12 w-72 h-72 rounded-full bg-lilac-200/50 blur-3xl" />
+          <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-20">
+            <SectionHeading
+              title="What you can do here"
+              subtitle="Four things, each on its own page."
+            />
 
-            <div className="relative">
-              <h2 className="text-3xl sm:text-5xl leading-[1.1] text-ink max-w-2xl mx-auto">
-                Ready to meet your next best friend?
-              </h2>
-              <p className="mt-6 text-base sm:text-lg text-ink-soft max-w-xl mx-auto leading-relaxed">
-                Answer a few questions and we'll shortlist pets that suit your
-                home, your schedule and your budget.
-              </p>
-              <div className="mt-10 flex flex-wrap justify-center gap-3">
-                <Button to="/pet-finder" size="lg">
-                  Start the quiz
-                  <ArrowRight size={17} strokeWidth={2.2} />
-                </Button>
-                <Button to="/contact" variant="outline" size="lg">
-                  Talk to us
-                </Button>
-              </div>
+            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8">
+              <Item
+                to="/pet-services"
+                title="Browse and filter pets"
+                body="Six categories, every listing priced and tagged with temperament. Filter by breed or budget."
+              />
+              <Item
+                to="/essentials"
+                title="Order supplies"
+                body="Food, bedding, toys, carriers and care kits. Stock status is shown per item, not guessed."
+              />
+              <Item
+                to="/grooming"
+                title="Book grooming"
+                body="Pick a groomer by speciality, then a slot. Taken slots are greyed out before you commit."
+              />
+              <Item
+                to="/disease-prediction"
+                title="Check symptoms"
+                body="Describe what you're seeing and get triage guidance against a reference of common conditions."
+              />
             </div>
-          </motion.div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ---------------- FAQ ---------------- */}
+      <section className="py-16 sm:py-20 border-t border-hairline">
+        <Container>
+          <div className="grid lg:grid-cols-[1fr_1.6fr] gap-10 lg:gap-20">
+            <SectionHeading title="Questions people ask" />
+
+            <div>
+              {FAQS.map((f, i) => {
+                const open = openFaq === i;
+                return (
+                  <div key={f.q} className="border-b border-hairline first:border-t">
+                    <button
+                      onClick={() => setOpenFaq(open ? -1 : i)}
+                      className="flex items-start justify-between gap-6 w-full py-5 text-left group"
+                      aria-expanded={open}
+                    >
+                      <span className="text-[0.95rem] font-medium text-ink group-hover:text-blush-500 transition-colors">
+                        {f.q}
+                      </span>
+                      <span className="shrink-0 mt-0.5 text-ink-mute">
+                        {open ? <Minus size={16} /> : <Plus size={16} />}
+                      </span>
+                    </button>
+
+                    <motion.div
+                      initial={false}
+                      animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
+                      transition={{ duration: 0.22, ease: EASE }}
+                      className="overflow-hidden"
+                    >
+                      <p className="pb-5 pr-10 text-sm text-ink-soft leading-relaxed">
+                        {f.a}
+                      </p>
+                    </motion.div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ---------------- Closing ---------------- */}
+      <section className="border-t border-hairline bg-shell">
+        <Container className="py-16 sm:py-20">
+          <div className="flex flex-wrap items-end justify-between gap-8">
+            <div className="max-w-xl">
+              <h2 className="text-xl sm:text-2xl leading-snug text-ink">
+                Not sure which pet suits your flat?
+              </h2>
+              <p className="mt-3 text-ink-soft leading-relaxed">
+                Answer three questions — type, breed and budget — and we'll
+                shortlist what fits.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button to="/pet-finder" size="lg">Try the pet finder</Button>
+              <Button to="/contact" variant="outline" size="lg">Contact us</Button>
+            </div>
+          </div>
         </Container>
       </section>
 
@@ -393,5 +378,20 @@ const Home = () => {
     </div>
   );
 };
+
+const Dot = () => <span className="mx-2 text-ink-mute">·</span>;
+
+const Item = ({ to, title, body }) => (
+  <Link to={to} className="group block">
+    <h3 className="text-[0.95rem] font-semibold text-ink flex items-center gap-1.5">
+      {title}
+      <ArrowRight
+        size={14}
+        className="text-blush-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200"
+      />
+    </h3>
+    <p className="mt-2 text-sm text-ink-soft leading-relaxed">{body}</p>
+  </Link>
+);
 
 export default Home;

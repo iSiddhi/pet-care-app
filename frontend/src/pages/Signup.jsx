@@ -74,12 +74,9 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-[85vh] grid place-items-center py-16 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-blush-50 to-cream" />
-      <div className="absolute -top-32 -left-20 w-96 h-96 rounded-full bg-lilac-100/60 blur-3xl" />
-      <div className="absolute -bottom-32 -right-20 w-96 h-96 rounded-full bg-sage-100/50 blur-3xl" />
+    <div className="min-h-[85vh] grid place-items-center py-16 bg-shell">
 
-      <Container className="relative" size="narrow">
+      <Container size="narrow">
         <motion.div
           variants={stagger(0, 0.08)}
           initial="hidden"
@@ -100,7 +97,7 @@ const Signup = () => {
             variants={fadeUp}
             onSubmit={submit}
             noValidate
-            className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-7 sm:p-9"
+            className="rounded-2xl bg-cream border border-hairline shadow-soft p-7 sm:p-9"
           >
             <AnimatePresence>
               {serverError && (

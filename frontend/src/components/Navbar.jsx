@@ -69,7 +69,7 @@ const Navbar = () => {
               <span className="grid place-items-center w-9 h-9 rounded-full bg-blush-100 text-blush-500 transition-colors group-hover:bg-blush-200">
                 <PawPrint size={18} strokeWidth={2.2} />
               </span>
-              <span className="font-display text-lg font-semibold tracking-tight text-ink">
+              <span className="text-base font-semibold tracking-tight text-ink">
                 Pet Care Hub
               </span>
             </Link>

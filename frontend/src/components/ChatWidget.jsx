@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, ArrowUp, Sparkles } from 'lucide-react';
+import { MessageCircle, X, ArrowUp, Cat } from 'lucide-react';
 import { apiService } from '../services/api';
 import { EASE } from './ui/motion';
 
@@ -77,7 +77,7 @@ const ChatWidget = () => {
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3.5 border-b border-hairline bg-blush-50/60 shrink-0">
               <span className="grid place-items-center w-9 h-9 rounded-full bg-blush-200 text-blush-600">
-                <Sparkles size={16} strokeWidth={2.2} />
+                <Cat size={16} strokeWidth={2.2} />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-ink leading-tight">Myaau</p>
