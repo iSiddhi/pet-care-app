@@ -1,217 +1,226 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, SlidersHorizontal, PawPrint, AlertCircle, RotateCcw } from 'lucide-react';
+
+import Container from '../components/ui/Container';
+import PageHeader from '../components/ui/PageHeader';
+import Button from '../components/ui/Button';
+import EmptyState from '../components/ui/EmptyState';
+import PetCard from '../components/PetCard';
+import { SkeletonGrid } from '../components/ui/Skeleton';
+import { stagger, fadeUp, EASE } from '../components/ui/motion';
 import { apiService } from '../services/api';
-import { useAppContext } from '../context/AppContext';
+
+const PET_TYPES = ['Dog', 'Cat', 'Rabbit', 'Birds', 'Fish', 'Turtle'];
+const MAX_PRICE = 1200;
 
 const PetFinder = () => {
-  const { state, dispatch } = useAppContext();
-  const [selectedPet, setSelectedPet] = useState('');
-  const [selectedBreed, setSelectedBreed] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [petType, setPetType] = useState('');
+  const [breed, setBreed] = useState('');
+  const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [breeds, setBreeds] = useState([]);
-  const [results, setResults] = useState([]);
+
+  const [results, setResults] = useState(null); // null = not searched yet
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const petTypes = ['Dog', 'Cat', 'Rabbit', 'Birds', 'Fish', 'Turtle'];
-
-  const allPets = [
-    { id: 1, type: 'Dog', breed: 'Golden Retriever', price: 800, age: '2 years', characteristics: ['Friendly', 'Active'], image: '/PetServices/Dog1.png' },
-    { id: 2, type: 'Dog', breed: 'Labrador', price: 700, age: '1 year', characteristics: ['Loyal', 'Gentle'], image: '/PetServices/Dog2.png' },
-    { id: 3, type: 'Dog', breed: 'German Shepherd', price: 900, age: '3 years', characteristics: ['Intelligent', 'Protective'], image: '/PetServices/Dog3.png' },
-    { id: 4, type: 'Cat', breed: 'Persian', price: 600, age: '2 years', characteristics: ['Calm', 'Beautiful'], image: '/PetServices/cat1.png' },
-    { id: 5, type: 'Cat', breed: 'Siamese', price: 500, age: '1 year', characteristics: ['Social', 'Vocal'], image: '/PetServices/cat2.png' },
-    { id: 6, type: 'Rabbit', breed: 'Holland Lop', price: 200, age: '6 months', characteristics: ['Gentle', 'Small'], image: '/PetServices/rabbit1.png' },
-    { id: 7, type: 'Birds', breed: 'Canary', price: 150, age: '1 year', characteristics: ['Musical', 'Colorful'], image: '/PetServices/birds1.png' },
-    { id: 8, type: 'Fish', breed: 'Goldfish', price: 50, age: '6 months', characteristics: ['Peaceful', 'Easy Care'], image: '/PetServices/fish1.png' },
-    { id: 9, type: 'Turtle', breed: 'Red-eared Slider', price: 100, age: '1 year', characteristics: ['Quiet', 'Long-lived'], image: '/PetServices/turtle1.png' }
-  ];
-
+  // Breed list follows the chosen pet type
   useEffect(() => {
-    if (selectedPet) {
-      fetchBreeds(selectedPet);
-    } else {
-      setBreeds([]);
-      setSelectedBreed('');
-    }
-  }, [selectedPet]);
+    setBreed('');
+    if (!petType) { setBreeds([]); return; }
 
-  const fetchBreeds = async (petType) => {
-    try {
-      let breedData;
-      try {
-        breedData = await apiService.getBreedsByPet(petType);
-      } catch (error) {
-        const mockBreeds = {
-          Dog: ['Golden Retriever', 'Labrador', 'German Shepherd', 'Bulldog', 'Poodle'],
-          Cat: ['Persian', 'Siamese', 'Maine Coon', 'British Shorthair', 'Ragdoll'],
-          Rabbit: ['Holland Lop', 'Netherland Dwarf', 'Flemish Giant', 'Mini Rex'],
-          Birds: ['Canary', 'Parakeet', 'Cockatiel', 'Lovebird', 'Finch'],
-          Fish: ['Goldfish', 'Betta', 'Angelfish', 'Guppy', 'Neon Tetra'],
-          Turtle: ['Red-eared Slider', 'Box Turtle', 'Russian Tortoise', 'Hermann\'s Tortoise']
-        };
-        breedData = { breeds: mockBreeds[petType] || [] };
-      }
-      setBreeds(breedData.breeds || []);
-    } catch (error) {
-      console.error('Error fetching breeds:', error);
-      setBreeds([]);
-    }
-  };
+    let alive = true;
+    apiService
+      .getBreedsByPet(petType)
+      .then((res) => { if (alive) setBreeds(res.breeds || []); })
+      .catch(() => { if (alive) setBreeds([]); });
+    return () => { alive = false; };
+  }, [petType]);
 
-  const handleSearch = () => {
+  const search = async () => {
     setLoading(true);
-    let filteredPets = allPets;
-
-    if (selectedPet) {
-      filteredPets = filteredPets.filter(pet => pet.type === selectedPet);
-    }
-
-    if (selectedBreed) {
-      filteredPets = filteredPets.filter(pet => pet.breed === selectedBreed);
-    }
-
-    filteredPets = filteredPets.filter(pet =>
-      pet.price >= priceRange[0] && pet.price <= priceRange[1]
-    );
-
-    setTimeout(() => {
-      setResults(filteredPets);
+    setError(null);
+    try {
+      const res = await apiService.getPetsByType(petType || undefined);
+      let list = res.pets || [];
+      if (breed) list = list.filter((p) => p.breed === breed);
+      list = list.filter((p) => p.price <= maxPrice);
+      setResults(list);
+    } catch {
+      setResults([]);
+      setError("We couldn't reach the server. Check that the backend is running.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
-  const resetFilters = () => {
-    setSelectedPet('');
-    setSelectedBreed('');
-    setPriceRange([0, 1000]);
-    setResults([]);
-    setBreeds([]);
+  const reset = () => {
+    setPetType('');
+    setBreed('');
+    setMaxPrice(MAX_PRICE);
+    setResults(null);
+    setError(null);
   };
+
+  const dirty = petType || breed || maxPrice !== MAX_PRICE;
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center py-8 backdrop-blur-sm bg-white/12"
-      style={{ backgroundImage: "url('/bestpet/backk.png')" }}
-    >
-      <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Best Pet Finder</h1>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          Find your perfect companion! Use our smart filters to discover pets that match your preferences and budget.
-        </p>
+    <div className="min-h-screen pb-24">
+      <PageHeader
+        eyebrow="Pet Finder"
+        title="Tell us what fits your life"
+        subtitle="Three questions and we'll shortlist the pets that match your home, schedule and budget."
+      />
 
-        {/* Filter Form */}
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Pet Type</label>
-              <select
-                value={selectedPet}
-                onChange={(e) => setSelectedPet(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg"
-              >
-                <option value="">Select Pet Type</option>
-                {petTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Breed</label>
-              <select
-                value={selectedBreed}
-                onChange={(e) => setSelectedBreed(e.target.value)}
-                disabled={!selectedPet || breeds.length === 0}
-                className="w-full p-3 border border-gray-300 rounded-lg disabled:bg-gray-100"
-              >
-                <option value="">Select Breed</option>
-                {breeds.map((breed) => (
-                  <option key={breed} value={breed}>{breed}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price Range: ${priceRange[0]} - ${priceRange[1]}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="1000"
-                value={priceRange[0]}
-                onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                className="w-full mb-2"
-              />
-              <input
-                type="range"
-                min="0"
-                max="1000"
-                value={priceRange[1]}
-                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                className="w-full"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center space-x-4 mt-6">
-            <button onClick={handleSearch} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">🔍 Find Pets</button>
-            <button onClick={resetFilters} className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">🔄 Reset</button>
-          </div>
-        </div>
-
-        {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Searching for perfect pets...</p>
-          </div>
-        )}
-
-        {!loading && results.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-bold mb-8 text-gray-800">
-              Found {results.length} perfect match{results.length !== 1 ? 'es' : ''}! 🎉
+      {/* Filter panel */}
+      <Container className="pt-4">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+          className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-6 sm:p-8"
+        >
+          <div className="flex items-center gap-2 mb-7">
+            <SlidersHorizontal size={16} className="text-blush-500" />
+            <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-ink-mute">
+              Your preferences
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {results.map((pet) => (
-                <div key={pet.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg">
-                  <img src={pet.image} alt={pet.breed} className="w-full h-48 object-contain bg-white" />
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-2">{pet.breed}</h3>
-                    <p className="text-gray-600 mb-1"><strong>Type:</strong> {pet.type}</p>
-                    <p className="text-gray-600 mb-2"><strong>Age:</strong> {pet.age}</p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {pet.characteristics.map((char, i) => (
-                        <span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{char}</span>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-green-600">${pet.price}</span>
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Contact Seller</button>
-                    </div>
-                  </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <Field label="Pet type">
+              <select
+                value={petType}
+                onChange={(e) => setPetType(e.target.value)}
+                className="w-full bg-mist rounded-2xl px-4 py-3.5 text-sm text-ink outline-none focus:ring-2 focus:ring-blush-300 transition-shadow cursor-pointer"
+              >
+                <option value="">Any pet</option>
+                {PET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </Field>
+
+            <Field label="Breed">
+              <select
+                value={breed}
+                onChange={(e) => setBreed(e.target.value)}
+                disabled={!petType || breeds.length === 0}
+                className="w-full bg-mist rounded-2xl px-4 py-3.5 text-sm text-ink outline-none focus:ring-2 focus:ring-blush-300 transition-shadow cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">{petType ? 'Any breed' : 'Pick a pet type first'}</option>
+                {breeds.map((b) => <option key={b} value={b}>{b}</option>)}
+              </select>
+            </Field>
+
+            <Field label={`Budget — up to $${maxPrice}`}>
+              <div className="px-1 pt-3">
+                <input
+                  type="range"
+                  min={0}
+                  max={MAX_PRICE}
+                  step={50}
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-blush-100
+                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5
+                    [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full
+                    [&::-webkit-slider-thumb]:bg-ink [&::-webkit-slider-thumb]:cursor-grab
+                    [&::-webkit-slider-thumb]:shadow-soft
+                    [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
+                    [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-ink
+                    [&::-moz-range-thumb]:border-0"
+                />
+                <div className="flex justify-between mt-2.5 text-xs text-ink-mute tabular-nums">
+                  <span>$0</span>
+                  <span>${MAX_PRICE}+</span>
                 </div>
-              ))}
-            </div>
+              </div>
+            </Field>
           </div>
-        )}
 
-        {!loading && results.length === 0 && (selectedPet || selectedBreed || priceRange[0] > 0 || priceRange[1] < 1000) && (
-          <div className="text-center py-12">
-            <div className="text-4xl mb-2">😔</div>
-            <h2 className="text-xl font-semibold">No pets found</h2>
-            <p className="text-gray-600 mb-4">Try adjusting your search criteria.</p>
-            <button onClick={resetFilters} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Reset Filters</button>
+          <div className="flex flex-wrap gap-3 mt-8">
+            <Button onClick={search} size="lg" disabled={loading}>
+              <Search size={17} strokeWidth={2.2} />
+              {loading ? 'Searching…' : 'Find my match'}
+            </Button>
+            {dirty && (
+              <Button onClick={reset} variant="ghost" size="lg">
+                <RotateCcw size={16} />
+                Reset
+              </Button>
+            )}
           </div>
-        )}
+        </motion.div>
+      </Container>
 
-        {!loading && results.length === 0 && !selectedPet && !selectedBreed && priceRange[0] === 0 && priceRange[1] === 1000 && (
-          <div className="text-center py-12">
-            <div className="text-4xl mb-2">🐾</div>
-            <h2 className="text-xl font-semibold">Start Your Search</h2>
-            <p className="text-gray-600">Use the filters above to find your perfect pet.</p>
-          </div>
-        )}
-      </div>
+      {/* Results */}
+      <Container className="pt-14">
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <SkeletonGrid count={6} />
+            </motion.div>
+          ) : error ? (
+            <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <EmptyState
+                tone="error"
+                icon={AlertCircle}
+                title="Something went wrong"
+                body={error}
+                actionLabel="Try again"
+                onAction={search}
+              />
+            </motion.div>
+          ) : results === null ? (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: EASE }}
+            >
+              <EmptyState
+                icon={Search}
+                title="Set your preferences above"
+                body="Pick what matters to you and hit find — we'll do the rest."
+              />
+            </motion.div>
+          ) : results.length === 0 ? (
+            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <EmptyState
+                icon={PawPrint}
+                title="No matches for those filters"
+                body="Try widening your budget or choosing a different breed."
+                actionLabel="Reset filters"
+                onAction={reset}
+              />
+            </motion.div>
+          ) : (
+            <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <p className="text-sm text-ink-soft mb-8">
+                {results.length} {results.length === 1 ? 'match' : 'matches'} found
+              </p>
+              <motion.div
+                variants={stagger(0, 0.07)}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+              >
+                {results.map((pet, i) => (
+                  <PetCard key={pet._id || i} pet={pet} index={i} />
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Container>
     </div>
   );
 };
+
+const Field = ({ label, children }) => (
+  <div>
+    <label className="block text-sm font-medium text-ink mb-2.5">{label}</label>
+    {children}
+  </div>
+);
 
 export default PetFinder;

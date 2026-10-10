@@ -1,341 +1,334 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Stethoscope, Sparkles, ShieldAlert, ArrowRight,
+  RotateCcw, AlertCircle, CheckCircle2, Info,
+} from 'lucide-react';
+
+import Container from '../components/ui/Container';
+import PageHeader from '../components/ui/PageHeader';
+import Button from '../components/ui/Button';
+import { fadeUp, stagger, EASE } from '../components/ui/motion';
 import { apiService } from '../services/api';
 
+const PET_TYPES = ['Dog', 'Cat', 'Rabbit', 'Birds', 'Fish', 'Turtle'];
+
+const SEVERITY = {
+  Low: { bg: 'bg-sage-50', text: 'text-sage-300', ring: 'ring-sage-200', icon: CheckCircle2 },
+  Moderate: { bg: 'bg-blush-50', text: 'text-blush-500', ring: 'ring-blush-200', icon: Info },
+  High: { bg: 'bg-blush-100', text: 'text-blush-600', ring: 'ring-blush-300', icon: AlertCircle },
+  Critical: { bg: 'bg-blush-100', text: 'text-blush-600', ring: 'ring-blush-400', icon: ShieldAlert },
+};
+
+const EXAMPLES = [
+  'Vomiting since yesterday, not eating, very low energy',
+  'Constant scratching and red patches near the belly',
+  'Sneezing with watery eyes and a runny nose',
+];
+
 const DiseasePrediction = () => {
-  const [formData, setFormData] = useState({
-    pet: '',
-    breed: '',
-    symptoms: ''
-  });
+  const [form, setForm] = useState({ pet: '', breed: '', symptoms: '' });
   const [breeds, setBreeds] = useState([]);
-  const [prediction, setPrediction] = useState(null);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showResult, setShowResult] = useState(false);
-
-  const petTypes = ['Dog', 'Cat', 'Rabbit', 'Birds', 'Fish', 'Turtle'];
-
-  const breedData = {
-    Dog: ['Golden Retriever', 'Labrador', 'German Shepherd', 'Bulldog', 'Poodle', 'Beagle', 'Rottweiler'],
-    Cat: ['Persian', 'Siamese', 'Maine Coon', 'British Shorthair', 'Ragdoll', 'Abyssinian', 'Russian Blue'],
-    Rabbit: ['Holland Lop', 'Netherland Dwarf', 'Flemish Giant', 'Mini Rex', 'Lionhead'],
-    Birds: ['Canary', 'Parakeet', 'Cockatiel', 'Lovebird', 'Finch', 'Parrot'],
-    Fish: ['Goldfish', 'Betta', 'Angelfish', 'Guppy', 'Neon Tetra', 'Discus'],
-    Turtle: ['Red-eared Slider', 'Box Turtle', 'Russian Tortoise', 'Hermann\'s Tortoise']
-  };
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (formData.pet) {
-      setBreeds(breedData[formData.pet] || []);
-      setFormData(prev => ({ ...prev, breed: '' }));
-    } else {
-      setBreeds([]);
-    }
-  }, [formData.pet]);
+    setForm((f) => ({ ...f, breed: '' }));
+    if (!form.pet) { setBreeds([]); return; }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+    let alive = true;
+    apiService
+      .getBreedsByPet(form.pet)
+      .then((res) => { if (alive) setBreeds(res.breeds || []); })
+      .catch(() => { if (alive) setBreeds([]); });
+    return () => { alive = false; };
+  }, [form.pet]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.pet || !formData.breed || !formData.symptoms.trim()) {
-      alert('Please fill in all fields');
-      return;
-    }
+  const submit = async (e) => {
+    e?.preventDefault();
+    if (!form.pet || !form.symptoms.trim()) return;
 
     setLoading(true);
-    setShowResult(false);
+    setError(null);
+    setResult(null);
 
     try {
-      let predictionResult;
-      try {
-        predictionResult = await apiService.predictDisease(formData);
-      } catch (error) {
-        console.log('API call failed, using mock prediction');
-        predictionResult = generateMockPrediction(formData);
-      }
-
-      setTimeout(() => {
-        setPrediction(predictionResult);
-        setLoading(false);
-        setShowResult(true);
-      }, 2000);
-
-    } catch (error) {
-      console.error('Error predicting disease:', error);
+      const prediction = await apiService.predictDisease(form);
+      setResult(prediction);
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+        "We couldn't reach the health service. Check that the backend is running."
+      );
+    } finally {
       setLoading(false);
-      alert('An error occurred while predicting. Please try again.');
     }
   };
 
-  const generateMockPrediction = (data) => {
-    const symptoms = data.symptoms.toLowerCase();
-
-    if (symptoms.includes('cough') || symptoms.includes('breathing')) {
-      return {
-        disease: 'Respiratory Infection',
-        confidence: 85,
-        description: 'A common respiratory condition that affects the airways and lungs.',
-        severity: 'Moderate',
-        tips: [
-          'Keep your pet in a well-ventilated area',
-          'Ensure adequate rest and reduce activity',
-          'Monitor breathing patterns closely',
-          'Consult a veterinarian for proper diagnosis',
-          'Keep the environment clean and dust-free'
-        ],
-        urgency: 'Schedule a vet visit within 1-2 days'
-      };
-    } else if (symptoms.includes('vomit') || symptoms.includes('diarrhea') || symptoms.includes('stomach')) {
-      return {
-        disease: 'Digestive Issues',
-        confidence: 78,
-        description: 'Gastrointestinal problems that may be caused by dietary changes or infections.',
-        severity: 'Mild to Moderate',
-        tips: [
-          'Provide bland diet (rice and boiled chicken for dogs)',
-          'Ensure adequate hydration',
-          'Monitor food intake and appetite',
-          'Avoid giving treats or table scraps',
-          'Consider probiotics (consult vet first)'
-        ],
-        urgency: 'Monitor closely, consult vet if symptoms persist'
-      };
-    } else if (symptoms.includes('scratch') || symptoms.includes('itch') || symptoms.includes('skin')) {
-      return {
-        disease: 'Skin Allergy',
-        confidence: 72,
-        description: 'Allergic reactions affecting the skin, possibly due to environmental or food allergens.',
-        severity: 'Mild',
-        tips: [
-          'Identify and remove potential allergens',
-          'Use hypoallergenic shampoos',
-          'Keep the affected area clean and dry',
-          'Prevent excessive scratching with protective clothing',
-          'Consider antihistamines (vet prescribed only)'
-        ],
-        urgency: 'Non-urgent, but schedule a vet consultation'
-      };
-    } else if (symptoms.includes('lethargy') || symptoms.includes('tired') || symptoms.includes('weak')) {
-      return {
-        disease: 'General Fatigue Syndrome',
-        confidence: 65,
-        description: 'General weakness and fatigue that could indicate various underlying conditions.',
-        severity: 'Variable',
-        tips: [
-          'Ensure adequate nutrition and hydration',
-          'Provide a comfortable resting environment',
-          'Monitor vital signs and behavior',
-          'Check for fever or other symptoms',
-          'Encourage gentle exercise if appropriate'
-        ],
-        urgency: 'Monitor closely and consult vet if persists beyond 24 hours'
-      };
-    } else {
-      return {
-        disease: 'General Health Check Recommended',
-        confidence: 60,
-        description: 'The symptoms require professional evaluation for accurate diagnosis.',
-        severity: 'Unknown',
-        tips: [
-          'Document all symptoms with dates and times',
-          'Monitor your pet\'s eating and drinking habits',
-          'Note any behavioral changes',
-          'Keep your pet comfortable and stress-free',
-          'Prepare questions for your veterinarian'
-        ],
-        urgency: 'Schedule a veterinary consultation for proper diagnosis'
-      };
-    }
+  const reset = () => {
+    setForm({ pet: '', breed: '', symptoms: '' });
+    setResult(null);
+    setError(null);
   };
 
-  const resetForm = () => {
-    setFormData({ pet: '', breed: '', symptoms: '' });
-    setPrediction(null);
-    setShowResult(false);
-    setBreeds([]);
-  };
-
-  const getSeverityColor = (severity) => {
-    if (severity?.toLowerCase().includes('mild')) return 'text-green-600 bg-green-100';
-    if (severity?.toLowerCase().includes('moderate')) return 'text-yellow-600 bg-yellow-100';
-    if (severity?.toLowerCase().includes('severe')) return 'text-red-600 bg-red-100';
-    return 'text-gray-600 bg-gray-100';
-  };
+  const tone = SEVERITY[result?.severity] || SEVERITY.Moderate;
+  const SeverityIcon = tone.icon;
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center py-8 relative"
-      style={{ backgroundImage: "url('/diseaseAI/Stethoscope.png')" }}
-    >
-      <div className="absolute inset-2 bg-white/60"></div>
+    <div className="min-h-screen pb-24">
+      <PageHeader
+        eyebrow="Health Check"
+        title="Describe what you're seeing"
+        subtitle="Our assistant reads the symptoms against a veterinary knowledge base and suggests what to look into next."
+      />
 
-
-      <div className="container mx-auto px-4 max-w-4xl relative z-10">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">AI Disease Prediction</h1>
-        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          Our advanced AI system helps identify potential health issues in your pets. Please note this is for informational purposes only and should not replace professional veterinary diagnosis.
-        </p>
-
-        {/* Warning Banner */}
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
-          <div className="flex">
-            <span className="text-yellow-400 text-xl">⚠️</span>
-            <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                <strong>Important:</strong> This AI prediction is for educational purposes only. 
-                Always consult with a qualified veterinarian for accurate diagnosis and treatment.
-              </p>
+      <Container className="pt-4">
+        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
+          {/* Form */}
+          <motion.form
+            onSubmit={submit}
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            className="rounded-[2rem] bg-cream border border-hairline shadow-soft p-6 sm:p-8 lg:sticky lg:top-28"
+          >
+            <div className="flex items-center gap-2 mb-7">
+              <Stethoscope size={17} className="text-blush-500" />
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-ink-mute">
+                Symptom check
+              </h2>
             </div>
-          </div>
-        </div>
 
-        {!showResult ? (
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Pet Health Assessment</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Pet Type *</label>
-                  <select
-                    name="pet"
-                    value={formData.pet}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Select Pet Type</option>
-                    {petTypes.map((type) => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Breed *</label>
-                  <select
-                    name="breed"
-                    value={formData.breed}
-                    onChange={handleInputChange}
-                    disabled={!formData.pet}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                    required
-                  >
-                    <option value="">Select Breed</option>
-                    {breeds.map((breed) => (
-                      <option key={breed} value={breed}>{breed}</option>
-                    ))}
-                  </select>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-ink mb-2.5">Pet type</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {PET_TYPES.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, pet: t }))}
+                      className={`px-3 py-2.5 rounded-2xl text-sm font-medium border transition-colors duration-200
+                        ${form.pet === t
+                          ? 'border-blush-300 bg-blush-50 text-blush-600'
+                          : 'border-hairline text-ink-soft hover:border-blush-200 hover:text-ink'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Symptoms *</label>
-                <textarea
-                  name="symptoms"
-                  value={formData.symptoms}
-                  onChange={handleInputChange}
-                  rows={5}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+                <label className="block text-sm font-medium text-ink mb-2.5">
+                  Breed <span className="text-ink-mute font-normal">(optional)</span>
+                </label>
+                <select
+                  value={form.breed}
+                  onChange={(e) => setForm((f) => ({ ...f, breed: e.target.value }))}
+                  disabled={!form.pet || breeds.length === 0}
+                  className="w-full bg-mist rounded-2xl px-4 py-3.5 text-sm text-ink outline-none focus:ring-2 focus:ring-blush-300 transition-shadow cursor-pointer disabled:opacity-50"
+                >
+                  <option value="">{form.pet ? 'Any breed' : 'Pick a pet type first'}</option>
+                  {breeds.map((b) => <option key={b} value={b}>{b}</option>)}
+                </select>
               </div>
 
-              <div className="flex justify-center space-x-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {loading ? 'Analyzing...' : '🔬 Analyze Symptoms'}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600"
-                >
-                  🔄 Reset Form
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-ink mb-2.5">Symptoms</label>
+                <textarea
+                  rows={4}
+                  value={form.symptoms}
+                  onChange={(e) => setForm((f) => ({ ...f, symptoms: e.target.value }))}
+                  placeholder="When did it start? What have you noticed? Any change in eating, energy or toilet habits?"
+                  className="w-full bg-mist rounded-2xl px-4 py-3.5 text-sm text-ink placeholder:text-ink-mute outline-none focus:ring-2 focus:ring-blush-300 transition-shadow resize-none leading-relaxed"
+                />
+
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {EXAMPLES.map((ex) => (
+                    <button
+                      key={ex}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, symptoms: ex }))}
+                      className="text-xs px-3 py-1.5 rounded-full border border-hairline text-ink-soft hover:border-blush-300 hover:bg-blush-50 transition-colors text-left"
+                    >
+                      {ex.length > 38 ? `${ex.slice(0, 38)}…` : ex}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </form>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-semibold mb-2 text-gray-800">Analysis Complete</h2>
-              <p className="text-gray-600">Based on the symptoms provided for your {formData.breed}</p>
             </div>
 
-            {prediction && (
-              <div className="space-y-6">
-                <div className="bg-blue-50 rounded-lg p-6 text-center">
-                  <h3 className="text-2xl font-bold text-blue-900 mb-2">{prediction.disease}</h3>
-                  <p className="text-blue-700 mb-3">{prediction.description}</p>
-                  <div className="flex justify-center items-center space-x-4">
-                    <span className="text-sm font-medium text-gray-600">
-                      Confidence: <span className="font-bold text-blue-600">{prediction.confidence}%</span>
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getSeverityColor(prediction.severity)}`}>
-                      {prediction.severity}
-                    </span>
-                  </div>
-                </div>
+            <div className="flex flex-wrap gap-3 mt-8">
+              <Button
+                as="button"
+                type="submit"
+                size="lg"
+                disabled={!form.pet || !form.symptoms.trim() || loading}
+              >
+                {loading ? 'Analysing…' : 'Check symptoms'}
+                {!loading && <ArrowRight size={17} strokeWidth={2.2} />}
+              </Button>
+              {(result || error) && (
+                <Button onClick={reset} variant="ghost" size="lg" type="button">
+                  <RotateCcw size={16} />
+                  Start over
+                </Button>
+              )}
+            </div>
+          </motion.form>
 
-                <div className="bg-orange-50 border-l-4 border-orange-400 p-4">
-                  <div className="flex">
-                    <span className="text-orange-400 text-xl mr-3">⏰</span>
-                    <div>
-                      <h4 className="font-semibold text-orange-800">Recommended Action:</h4>
-                      <p className="text-orange-700">{prediction.urgency}</p>
-                    </div>
+          {/* Result */}
+          <div className="min-h-[20rem]">
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="rounded-[2rem] border border-hairline bg-shell p-8 space-y-4"
+                >
+                  <div className="flex items-center gap-3 mb-6">
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      className="text-blush-400"
+                    >
+                      <Sparkles size={20} />
+                    </motion.span>
+                    <p className="text-sm text-ink-soft">Reading the symptoms…</p>
                   </div>
-                </div>
-
-                <div>
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800">Recommended Care Tips</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {prediction.tips.map((tip, index) => (
-                      <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <span className="text-green-500 font-bold text-lg">✓</span>
-                        <p className="text-gray-700">{tip}</p>
+                  <div className="h-6 w-2/3 rounded-full shimmer" />
+                  <div className="h-4 w-full rounded-full shimmer" />
+                  <div className="h-4 w-5/6 rounded-full shimmer" />
+                  <div className="h-4 w-3/4 rounded-full shimmer" />
+                </motion.div>
+              ) : error ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-[2rem] border border-hairline bg-shell p-8 text-center"
+                >
+                  <span className="inline-grid place-items-center w-12 h-12 rounded-2xl bg-blush-100 text-blush-500 mb-5">
+                    <AlertCircle size={21} />
+                  </span>
+                  <p className="font-medium text-ink mb-2">Couldn't complete the check</p>
+                  <p className="text-sm text-ink-soft max-w-sm mx-auto">{error}</p>
+                </motion.div>
+              ) : result ? (
+                <motion.div
+                  key="result"
+                  variants={stagger(0, 0.08)}
+                  initial="hidden"
+                  animate="show"
+                  className="rounded-[2rem] border border-hairline bg-cream shadow-soft overflow-hidden"
+                >
+                  {/* Severity band */}
+                  <motion.div variants={fadeUp} className={`${tone.bg} px-7 py-6`}>
+                    <div className="flex items-start gap-4">
+                      <span className={`grid place-items-center w-11 h-11 rounded-2xl bg-cream ${tone.text} shrink-0`}>
+                        <SeverityIcon size={20} strokeWidth={2} />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-mute mb-1.5">
+                          Likely condition
+                        </p>
+                        <h2 className="font-display text-2xl font-semibold text-ink leading-tight">
+                          {result.disease}
+                        </h2>
+                        <div className="flex flex-wrap items-center gap-2 mt-3">
+                          <span className={`px-3 py-1 rounded-full bg-cream text-xs font-semibold ${tone.text}`}>
+                            {result.severity} severity
+                          </span>
+                          {typeof result.confidence === 'number' && result.confidence > 0 && (
+                            <span className="px-3 py-1 rounded-full bg-cream text-xs font-medium text-ink-soft tabular-nums">
+                              {result.confidence}% confidence
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                  </motion.div>
+
+                  <div className="px-7 py-7 space-y-7">
+                    {result.description && (
+                      <motion.p variants={fadeUp} className="text-[0.95rem] text-ink-soft leading-relaxed">
+                        {result.description}
+                      </motion.p>
+                    )}
+
+                    {result.matchedSymptoms?.length > 0 && (
+                      <motion.div variants={fadeUp}>
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-mute mb-3">
+                          Matched signs
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {result.matchedSymptoms.map((s) => (
+                            <span key={s} className="text-xs px-3 py-1.5 rounded-full bg-mist text-ink-soft">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {result.recommendations?.length > 0 && (
+                      <motion.div variants={fadeUp}>
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-mute mb-4">
+                          What to do now
+                        </h3>
+                        <ul className="space-y-3">
+                          {result.recommendations.map((r, i) => (
+                            <li key={i} className="flex gap-3 text-sm text-ink-soft leading-relaxed">
+                              <span className="grid place-items-center w-5 h-5 rounded-full bg-blush-100 text-blush-600 text-[0.65rem] font-bold shrink-0 mt-0.5 tabular-nums">
+                                {i + 1}
+                              </span>
+                              {r}
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    )}
+
+                    {result.seeVetIf && (
+                      <motion.div variants={fadeUp} className="rounded-2xl bg-blush-50 px-5 py-4">
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-blush-600 mb-2">
+                          See a vet if
+                        </h3>
+                        <p className="text-sm text-ink leading-relaxed">{result.seeVetIf}</p>
+                      </motion.div>
+                    )}
+
+                    <motion.p variants={fadeUp} className="text-xs text-ink-mute leading-relaxed pt-2 border-t border-hairline">
+                      {result.disclaimer ||
+                        'This is an AI-assisted suggestion, not a veterinary diagnosis. Please consult a licensed vet before acting on it.'}
+                    </motion.p>
                   </div>
-                </div>
-
-                <div className="flex justify-center space-x-4 pt-6 border-t">
-                  <button
-                    onClick={resetForm}
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700"
-                  >
-                    New Analysis
-                  </button>
-                  <button
-                    onClick={() => window.print()}
-                    className="bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600"
-                  >
-                    Print Results
-                  </button>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="idle"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: EASE }}
+                  className="rounded-[2rem] border border-dashed border-hairline py-20 px-6 text-center"
+                >
+                  <span className="inline-grid place-items-center w-12 h-12 rounded-2xl bg-mist text-ink-mute mb-5">
+                    <Stethoscope size={21} />
+                  </span>
+                  <p className="font-medium text-ink mb-2">Your result will appear here</p>
+                  <p className="text-sm text-ink-soft max-w-xs mx-auto">
+                    The more detail you give about the symptoms, the better the guidance.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        )}
-
-        <div className="mt-8 bg-gray-100 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-3 text-gray-800">Important Disclaimer</h3>
-          <ul className="text-sm text-gray-600 space-y-2">
-            <li>• This AI prediction is based on pattern recognition and should not replace professional veterinary diagnosis</li>
-            <li>• Always consult with a licensed veterinarian for accurate diagnosis and treatment plans</li>
-            <li>• In case of emergency symptoms, contact your veterinarian immediately</li>
-            <li>• This tool is designed to provide general guidance and educational information only</li>
-          </ul>
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

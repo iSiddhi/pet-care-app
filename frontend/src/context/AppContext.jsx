@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useReducer } from 'react';
 
-// Initial state
+// Cart lives in CartContext now (it needs auth + server sync).
+// This holds the lighter shared UI state only.
 const initialState = {
-  cart: [],
   selectedPet: '',
   selectedBreed: '',
   priceRange: [0, 1000],
@@ -10,24 +10,20 @@ const initialState = {
   breeds: [],
   groomers: [],
   team: [],
-  gallery: []
+  gallery: [],
 };
 
-// Action types
 export const actionTypes = {
   SET_PETS: 'SET_PETS',
   SET_BREEDS: 'SET_BREEDS',
   SET_SELECTED_PET: 'SET_SELECTED_PET',
   SET_SELECTED_BREED: 'SET_SELECTED_BREED',
   SET_PRICE_RANGE: 'SET_PRICE_RANGE',
-  ADD_TO_CART: 'ADD_TO_CART',
-  REMOVE_FROM_CART: 'REMOVE_FROM_CART',
   SET_GROOMERS: 'SET_GROOMERS',
   SET_TEAM: 'SET_TEAM',
-  SET_GALLERY: 'SET_GALLERY'
+  SET_GALLERY: 'SET_GALLERY',
 };
 
-// Reducer function
 const appReducer = (state, action) => {
   switch (action.type) {
     case actionTypes.SET_PETS:
@@ -40,13 +36,6 @@ const appReducer = (state, action) => {
       return { ...state, selectedBreed: action.payload };
     case actionTypes.SET_PRICE_RANGE:
       return { ...state, priceRange: action.payload };
-    case actionTypes.ADD_TO_CART:
-      return { ...state, cart: [...state.cart, action.payload] };
-    case actionTypes.REMOVE_FROM_CART:
-      return { 
-        ...state, 
-        cart: state.cart.filter(item => item.id !== action.payload.id) 
-      };
     case actionTypes.SET_GROOMERS:
       return { ...state, groomers: action.payload };
     case actionTypes.SET_TEAM:
@@ -58,13 +47,10 @@ const appReducer = (state, action) => {
   }
 };
 
-// Create context
 const AppContext = createContext();
 
-// Context provider component
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-
   return (
     <AppContext.Provider value={{ state, dispatch }}>
       {children}
@@ -72,12 +58,8 @@ export const AppProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the context
 export const useAppContext = () => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
-  }
+  if (!context) throw new Error('useAppContext must be used within an AppProvider');
   return context;
 };
-
